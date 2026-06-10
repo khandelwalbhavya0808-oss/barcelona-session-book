@@ -1,53 +1,82 @@
-# Alex Moreno — Personal Trainer Site
+## Goal
+Lift the site from generic dark template to a confident, editorial training brand. Add real imagery, top-nav anchors, reduce schedule noise, and tighten every section.
 
-Single-page, mobile-first, performance-focused. Booking is always one click away (every CTA scrolls to `#book` for now; you'll swap in a real booking URL later).
+## 1. Top navigation (replace current TopBar)
+Sticky bar with wordmark left, anchor links center, orange `Book` button right.
+Links: **About · Schedule · Reviews · Details · Reschedule**
+- About → `#about` (Trust section)
+- Schedule → `#schedule`
+- Reviews → `#reviews` (SocialProof)
+- Details → `#details` (Logistics)
+- Reschedule → `#book` (same booking anchor, labelled for existing clients)
+- Book button → `#book`
+Mobile: collapsible menu (simple disclosure, no heavy drawer).
 
-## Design system
+## 2. Imagery — replace all placeholders with AI-generated photos
+Generate via `imagegen` (standard quality, cinematic, muted color grade matching near-black palette). Saved under `src/assets/` and externalized via `lovable-assets`.
+- `coach-portrait.jpg` — Hero + Trust (4:5, lean coach, neutral studio, soft directional light)
+- `studio-wide.jpg` — Trust strip (16:10, minimalist concrete strength studio, barbells, no people)
+- `outdoor-barcelona.jpg` — Trust strip (16:10, athlete training at Barceloneta beach, dawn light)
+- `community-1..4.jpg` — Social proof strip (1:1, varied: park sprint, studio lift, mobility, beach kettlebell)
+Replace `Placeholder` usage; keep component for fallback only.
 
-Set tokens in `src/styles.css` (oklch) and wire via `@theme inline`.
+## 3. Schedule — reduce to 6 curated slots
+Replace day-grid with a single clean **"This Week" list** of 6 signature sessions (the highlights, not the full timetable). Each row:
+`Day + Time · Session name · Focus · Location · Duration · Availability dot · Book`
+Rows: Mon 07:00 Strength/Studio · Tue 07:00 Beach Conditioning/Outdoor · Wed 18:30 Upper Body/Studio · Thu 07:00 Beach Strength/Outdoor · Fri 09:30 Montjuïc Hills/Outdoor · Sat 10:00 Open Studio/Studio.
+Editorial table feel: thin dividers, tabular-nums time, generous row height. Mobile: same list, stacked metadata.
+Update `schedule-data.ts` to a flat `FEATURED_SLOTS` array of 6.
 
-- Background: near-black `#0b0b0c`
-- Surface / card: `#161618`
-- Muted text: `#a1a1aa`
-- Foreground: near-white
-- Accent (primary): orange `#ff6a1a` — used **only** for CTAs, availability dots, the active hover state, and one or two headline highlights
-- Border: subtle white at ~8%
-- Type: display sans for headings (tight tracking, large weights), neutral sans for body. Strong hierarchy, generous spacing.
-- Radius: small (6–8px) to feel like a system, not marketing
-- No gradients, no glow, no motion-heavy hero. Restrained.
+## 4. Hero refinement
+- Two-column kept, but add subtle eyebrow rule, larger display type, asymmetric portrait crop (4:5 with thin orange corner accent rule, not a chip).
+- Secondary text link "See this week's schedule →" next to primary CTA.
+- Replace placeholder with `coach-portrait.jpg`.
 
-## Page sections (in order, single route `/`)
+## 5. Trust ("About") section
+- Section id `about`.
+- Larger portrait, name/credentials block with thin orange vertical rule.
+- 3 credibility bullets become a typographic numbered list (01 / 02 / 03) with hairline dividers — feels editorial, not card-y.
+- Replace strip images with real studio + outdoor shots.
 
-1. **Sticky top bar** — wordmark "Alex Moreno · S&C Coach · Barcelona" left, single orange `Book` button right. Always visible.
-2. **Hero** — Outcome headline ("Build real strength. Train consistently. In the studio or outside."), one-line subhead mentioning indoor + outdoor Barcelona, one supporting line, primary CTA `Book Your Session` → `#book`. Right side: portrait placeholder block.
-3. **Schedule** — *Visually dominant.* Desktop: 6-column grid Mon–Sat with time-row rails; each slot is a card showing class name, focus chip (Strength / Conditioning / Mobility), location chip (Studio / Outdoor), duration, availability dot (orange = spots open, muted = full), and a small `Book` button. Mobile: collapses to a day-by-day vertical list with the same card. Feels like a functional timetable, not marketing.
-4. **Trust** — Coach portrait placeholder + name/role, 3 short credibility bullets (experience, approach, consistency). Two-up image strip: clean studio shot + outdoor Barcelona shot (placeholders).
-5. **Social proof** — 3 short testimonial cards (1–2 lines, first name + age + profession). Below: 4-up community photo strip (mix studio/outdoor placeholders).
-6. **Logistics** — Compact 2-column key/value list: Base location, Outdoor session areas (Ciutadella, Barceloneta, Montjuïc), Session length, What to bring, Who it's for / not for. Practical, dense, no fluff.
-7. **Booking CTA (`#book`)** — Full-width dark band, big headline, single orange `Book Your Session` button. (Placeholder anchor for now.)
-8. **Footer** — Minimal: location, contact placeholder, copyright.
+## 6. Reviews section
+- Section id `reviews`.
+- Testimonials become quote-led editorial cards: oversized opening quote glyph in muted tone, body in serif-adjacent weight via display font for the quote itself, attribution in small caps.
+- Community strip uses 4 generated photos with consistent grading.
 
-## Image handling
+## 7. Details (Logistics)
+- Section id `details`.
+- Convert to a refined two-column definition list with hairline rules between rows, label in muted small-caps, value in foreground. Add an "Outdoor areas" chip row (Ciutadella · Barceloneta · Montjuïc · Poblenou).
 
-Every image is a neutral placeholder block (dark surface, subtle border, centered label like "Studio · 4:5") sized correctly so layout is final. You'll drop real photos in later without reflow.
+## 8. Booking CTA
+- Tighten copy: "Reserve a session. Or reschedule an existing one."
+- Two buttons: primary orange `Book a session`, secondary ghost `Reschedule` (both `#book` for now).
+- Add a thin info row: response time · cancellation window · location radius.
 
-## Content rules
+## 9. Footer
+- Three-column: brand + tagline, quick links (mirror nav), location/contact placeholder. Hairline top border.
 
-- No pricing, no lead form, no email capture, no blog, no motivational/emotional copy.
-- Copy tone: calm authority, practical, confident. Short lines.
-- Every CTA button across the page links to `#book`.
+## 10. Design system polish (`src/styles.css`)
+- Slightly warmer near-black background (already oklch 0.16), add `--color-surface-2` for nested cards.
+- Tighten radii to 4px globally for system feel.
+- Add subtle `--shadow-elevated` for nav bar only.
+- Body font size up to 16/17px with relaxed leading.
+- Add `.rule-accent` utility (1px orange left rule used in About + CTA).
 
-## Technical notes
+## Files touched
+- `src/components/site/TopBar.tsx` — nav links + mobile menu
+- `src/components/site/Hero.tsx` — real image, refined layout
+- `src/components/site/Schedule.tsx` — 6-row featured list
+- `src/components/site/schedule-data.ts` — `FEATURED_SLOTS` const
+- `src/components/site/Trust.tsx` — id `about`, editorial list, real images
+- `src/components/site/SocialProof.tsx` — id `reviews`, editorial quotes, real images
+- `src/components/site/Logistics.tsx` — id `details`, refined dl
+- `src/components/site/BookingCTA.tsx` — dual CTA + info row
+- `src/components/site/Footer.tsx` — 3-column
+- `src/styles.css` — tokens, radii, utilities
+- `src/assets/*.jpg.asset.json` — 7 generated images via lovable-assets
+- `src/routes/index.tsx` — unchanged composition
 
-- TanStack Start: build entirely in `src/routes/index.tsx`, split into small components under `src/components/site/` (Hero, Schedule, Trust, SocialProof, Logistics, BookingCTA, TopBar, Footer).
-- Update `head()` in `src/routes/index.tsx`: title "Alex Moreno — Personal Trainer in Barcelona", focused meta description, og tags.
-- Tailwind v4 tokens added in `src/styles.css` (`@theme inline` mapping `--color-accent`, etc.). No `tailwind.config.js`.
-- Use lucide-react for the few small icons (location pin, clock, dot). No new dependencies.
-- Smooth scroll via CSS `scroll-behavior: smooth` on `html`.
-- Schedule data lives as a typed const array in `src/components/site/schedule-data.ts` so swapping classes later is one file.
+## Out of scope
+Real booking integration, pricing, forms, blog, motion-heavy effects.
 
-## Out of scope (per your brief)
-
-Pricing, forms, email capture, blog, long explanations, hype copy.
-
-Ready to build on approval.
+Approve to build.
