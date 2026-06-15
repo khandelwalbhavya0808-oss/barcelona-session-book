@@ -13,8 +13,7 @@ export function BookingCTA() {
             <span className="text-accent">Or reschedule an existing one.</span>
           </h2>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-            One session to try it. Or a weekly block. Studio or outdoor — your
-            call.
+            One session to try it. Or a weekly block. Studio or outdoor — your call.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
@@ -36,25 +35,19 @@ export function BookingCTA() {
               <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Response time
               </dt>
-              <dd className="mt-2 font-display text-base font-semibold">
-                Within 24 hours
-              </dd>
+              <dd className="mt-2 font-display text-base font-semibold">Within 24 hours</dd>
             </div>
             <div>
               <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Cancellation
               </dt>
-              <dd className="mt-2 font-display text-base font-semibold">
-                Free up to 12h before
-              </dd>
+              <dd className="mt-2 font-display text-base font-semibold">Free up to 12h before</dd>
             </div>
             <div>
               <dt className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
                 Outdoor radius
               </dt>
-              <dd className="mt-2 font-display text-base font-semibold">
-                Central Barcelona
-              </dd>
+              <dd className="mt-2 font-display text-base font-semibold">Central Barcelona</dd>
             </div>
           </dl>
         </div>

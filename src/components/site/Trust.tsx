@@ -67,9 +67,7 @@ export function Trust() {
                   <span className="font-display text-sm font-semibold uppercase tracking-wider">
                     {b.k}
                   </span>
-                  <span className="text-sm leading-relaxed text-muted-foreground">
-                    {b.v}
-                  </span>
+                  <span className="text-sm leading-relaxed text-muted-foreground">{b.v}</span>
                 </li>
               ))}
             </ul>

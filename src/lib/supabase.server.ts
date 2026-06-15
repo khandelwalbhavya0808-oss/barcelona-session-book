@@ -8,7 +8,7 @@ export function createServerSupabase() {
 
   if (!url || !anonKey) {
     throw new Error(
-      "Supabase environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) are missing on the server."
+      "Supabase environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) are missing on the server.",
     );
   }
 
@@ -21,7 +21,7 @@ export function createServerSupabase() {
             cookieHeader.split("; ").map((cookie) => {
               const [name, ...value] = cookie.split("=");
               return [name, value.join("=")];
-            })
+            }),
           );
           return cookies[key];
         } catch (e) {
@@ -37,7 +37,7 @@ export function createServerSupabase() {
           if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`;
           if (options.secure) cookieString += `; Secure`;
           if (options.httpOnly) cookieString += `; HttpOnly`;
-          
+
           setResponseHeader("Set-Cookie", cookieString);
         } catch (e) {
           // Ignore if headers cannot be written (e.g. headers already sent)
@@ -51,7 +51,7 @@ export function createServerSupabase() {
           if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`;
           if (options.secure) cookieString += `; Secure`;
           if (options.httpOnly) cookieString += `; HttpOnly`;
-          
+
           setResponseHeader("Set-Cookie", cookieString);
         } catch (e) {
           // Ignore if headers cannot be written
@@ -59,4 +59,22 @@ export function createServerSupabase() {
       },
     },
   });
+}
+
+export function createServerSupabaseServiceRole() {
+  const url = process.env.VITE_SUPABASE_URL || "";
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+  if (!url || !serviceKey) {
+    throw new Error("Supabase service role configuration is missing on the server.");
+  }
+
+  return import("@supabase/supabase-js").then(({ createClient }) =>
+    createClient(url, serviceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    }),
+  );
 }

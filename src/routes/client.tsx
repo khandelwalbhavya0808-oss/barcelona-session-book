@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
-import { Loader2, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Loader2, LogOut, LayoutDashboard, User, Calendar } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/client")({
@@ -9,22 +9,31 @@ export const Route = createFileRoute("/client")({
 });
 
 function ClientLayout() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      toast.error("Please sign in to access the client area.");
-      router.navigate({ to: "/login" });
-    } else if (!loading && profile && profile.role !== "client" && profile.role !== "user") {
-      toast.error("Unauthorized access. Redirecting...");
-      if (profile.role === "admin") {
-        router.navigate({ to: "/admin/dashboard" });
-      } else {
+    if (!loading) {
+      if (!user) {
+        toast.error("Please sign in to access the client area.");
         router.navigate({ to: "/login" });
+      } else if (profile) {
+        if (profile.status === "banned" || profile.status === "rejected") {
+          toast.error("Access denied. Your account is restricted.");
+          signOut().then(() => {
+            router.navigate({ to: "/blocked" });
+          });
+        } else if (profile.role !== "client" && profile.role !== "user") {
+          toast.error("Unauthorized access. Redirecting...");
+          if (profile.role === "admin") {
+            router.navigate({ to: "/admin/dashboard" });
+          } else {
+            router.navigate({ to: "/login" });
+          }
+        }
       }
     }
-  }, [user, profile, loading, router]);
+  }, [user, profile, loading, router, signOut]);
 
   if (loading) {
     return (
@@ -34,7 +43,11 @@ function ClientLayout() {
     );
   }
 
-  if (!user || (profile && profile.role !== "client" && profile.role !== "user")) {
+  if (
+    !user ||
+    (profile && profile.role !== "client" && profile.role !== "user") ||
+    (profile && profile.status !== "active")
+  ) {
     return null; // Let the redirect handle it
   }
 
@@ -55,6 +68,20 @@ function ClientLayout() {
             >
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
+            </Link>
+            <Link
+              to="/client/bookings"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <Calendar className="h-4 w-4" />
+              Bookings
+            </Link>
+            <Link
+              to="/profile"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <User className="h-4 w-4" />
+              Profile
             </Link>
             <Link
               to="/logout"

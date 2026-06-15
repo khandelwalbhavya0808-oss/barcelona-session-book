@@ -1,7 +1,17 @@
 import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
-import { Loader2, LogOut, LayoutDashboard, Shield } from "lucide-react";
+import {
+  Loader2,
+  LogOut,
+  LayoutDashboard,
+  Shield,
+  Calendar,
+  Users,
+  Settings,
+  BarChart3,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -40,7 +50,10 @@ function AdminLayout() {
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2.5 text-sm font-semibold">
             <span className="h-2 w-2 rounded-full bg-accent" />
-            Alex Moreno <span className="text-accent uppercase tracking-wider font-semibold text-[10px] bg-accent/10 px-2 py-0.5 rounded-sm flex items-center gap-1"><Shield className="h-3 w-3" /> Admin</span>
+            Alex Moreno{" "}
+            <span className="text-accent uppercase tracking-wider font-semibold text-[10px] bg-accent/10 px-2 py-0.5 rounded-sm flex items-center gap-1">
+              <Shield className="h-3 w-3" /> Admin
+            </span>
           </Link>
 
           <div className="flex items-center gap-6">
@@ -50,6 +63,48 @@ function AdminLayout() {
             >
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
+            </Link>
+            <Link
+              to="/admin/bookings"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <Calendar className="h-4 w-4" />
+              Bookings
+            </Link>
+            <Link
+              to="/admin/clients"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <Users className="h-4 w-4" />
+              Clients
+            </Link>
+            <Link
+              to="/admin/sessions"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <Calendar className="h-4 w-4" />
+              Templates
+            </Link>
+            <Link
+              to="/admin/reporting"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Reporting
+            </Link>
+            <Link
+              to="/admin/settings"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+            <Link
+              to="/profile"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground [&.active]:font-semibold"
+            >
+              <User className="h-4 w-4" />
+              Profile
             </Link>
             <Link
               to="/logout"

@@ -52,22 +52,26 @@ function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-sm border border-border bg-surface p-8 shadow-lg">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide"
+          >
             <span className="h-2 w-2 rounded-full bg-accent" />
             Alex Moreno
           </Link>
           <h2 className="mt-6 font-display text-3xl font-semibold tracking-tight text-foreground">
             Create your account
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Start training consistently.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Start training consistently.</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md">
             <div>
-              <label htmlFor="full-name" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <label
+                htmlFor="full-name"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Full Name
               </label>
               <input
@@ -83,7 +87,10 @@ function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="email-address" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <label
+                htmlFor="email-address"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Email Address
               </label>
               <input
@@ -100,7 +107,10 @@ function SignupPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <label
+                htmlFor="password"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Password
               </label>
               <input
@@ -136,7 +146,10 @@ function SignupPage() {
 
         <div className="text-center text-xs text-muted-foreground">
           Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-accent transition-colors hover:text-accent/80">
+          <Link
+            to="/login"
+            className="font-semibold text-accent transition-colors hover:text-accent/80"
+          >
             Sign In
           </Link>
         </div>

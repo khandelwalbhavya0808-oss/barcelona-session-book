@@ -13,13 +13,10 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-2.5">
             <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-            <span className="font-display text-base font-semibold tracking-tight">
-              Alex Moreno
-            </span>
+            <span className="font-display text-base font-semibold tracking-tight">Alex Moreno</span>
           </div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
-            Strength &amp; conditioning coaching in Barcelona. Studio and
-            outdoor.
+            Strength &amp; conditioning coaching in Barcelona. Studio and outdoor.
           </p>
         </div>
 

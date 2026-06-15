@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase-client";
+import { logUserLogin } from "@/lib/api/auth.functions";
 import { toast } from "sonner";
 import { Loader2, ArrowRight } from "lucide-react";
 
@@ -35,6 +36,13 @@ function LoginPage() {
       }
 
       if (data.user) {
+        // Log the login event
+        try {
+          await logUserLogin({ data: { userId: data.user.id } });
+        } catch (logErr) {
+          console.error("Failed to log user login:", logErr);
+        }
+
         // Fetch user profile to read role
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
@@ -65,22 +73,26 @@ function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-sm border border-border bg-surface p-8 shadow-lg">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-semibold tracking-wide"
+          >
             <span className="h-2 w-2 rounded-full bg-accent" />
             Alex Moreno
           </Link>
           <h2 className="mt-6 font-display text-3xl font-semibold tracking-tight text-foreground">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Welcome back. Train hard.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Welcome back. Train hard.</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4 rounded-md">
             <div>
-              <label htmlFor="email-address" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <label
+                htmlFor="email-address"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Email Address
               </label>
               <input
@@ -97,7 +109,10 @@ function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <label
+                htmlFor="password"
+                className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+              >
                 Password
               </label>
               <input
@@ -133,7 +148,10 @@ function LoginPage() {
 
         <div className="text-center text-xs text-muted-foreground">
           Don't have an account?{" "}
-          <Link to="/signup" className="font-semibold text-accent transition-colors hover:text-accent/80">
+          <Link
+            to="/signup"
+            className="font-semibold text-accent transition-colors hover:text-accent/80"
+          >
             Sign Up
           </Link>
         </div>

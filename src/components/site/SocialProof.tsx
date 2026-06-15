@@ -5,22 +5,19 @@ import c4 from "@/assets/community-4.jpg";
 
 const TESTIMONIALS = [
   {
-    quote:
-      "Sessions are tight, structured and I actually see progress. No wasted time.",
+    quote: "Sessions are tight, structured and I actually see progress. No wasted time.",
     name: "Marta",
     age: 34,
     role: "Product Manager",
   },
   {
-    quote:
-      "Training outdoors three mornings a week changed how I start my day.",
+    quote: "Training outdoors three mornings a week changed how I start my day.",
     name: "Daniel",
     age: 38,
     role: "Architect",
   },
   {
-    quote:
-      "Calm, clear and demanding when it counts. Best coach I've worked with.",
+    quote: "Calm, clear and demanding when it counts. Best coach I've worked with.",
     name: "Sofía",
     age: 31,
     role: "Lawyer",
@@ -66,8 +63,7 @@ export function SocialProof() {
                 {t.quote}
               </blockquote>
               <figcaption className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                <span className="text-foreground">{t.name}</span>, {t.age} ·{" "}
-                {t.role}
+                <span className="text-foreground">{t.name}</span>, {t.age} · {t.role}
               </figcaption>
             </figure>
           ))}
@@ -75,10 +71,7 @@ export function SocialProof() {
 
         <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-4">
           {PHOTOS.map((p) => (
-            <div
-              key={p.alt}
-              className="overflow-hidden rounded-sm border border-border"
-            >
+            <div key={p.alt} className="overflow-hidden rounded-sm border border-border">
               <img
                 src={p.src}
                 alt={p.alt}

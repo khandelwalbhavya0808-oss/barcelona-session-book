@@ -14,7 +14,7 @@ function LogoutPage() {
 
   useEffect(() => {
     let active = true;
-    
+
     const performSignOut = async () => {
       try {
         await signOut();

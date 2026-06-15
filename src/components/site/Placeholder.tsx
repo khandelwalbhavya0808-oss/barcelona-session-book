@@ -19,9 +19,7 @@ export function Placeholder({ label, ratio = "4/5", className = "" }: Props) {
         }}
       />
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          {label}
-        </span>
+        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{label}</span>
       </div>
     </div>
   );

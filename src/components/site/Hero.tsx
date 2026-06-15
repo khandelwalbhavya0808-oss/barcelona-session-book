@@ -18,8 +18,8 @@ export function Hero() {
             <span className="text-accent">In the studio or outside.</span>
           </h1>
           <p className="mt-7 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-[17px]">
-            Structured 1:1 sessions for busy professionals — indoors at the
-            studio or outdoors across Barcelona's parks, beach and urban spaces.
+            Structured 1:1 sessions for busy professionals — indoors at the studio or outdoors
+            across Barcelona's parks, beach and urban spaces.
           </p>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground/80">
             Efficient programming. Direct coaching. No filler.

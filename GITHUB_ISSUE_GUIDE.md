@@ -19,13 +19,17 @@ Before creating a new issue, please complete the following checklist:
 To help us fix the issue as quickly as possible, please provide a clear and detailed description. A good bug report should include:
 
 ### 1. Title
+
 Use a concise, descriptive title that starts with a category tag, e.g., `[Bug] Client role not upgrading on booking` or `[UI] Session calendar elements overlapping on mobile`.
 
 ### 2. Description
+
 Explain the bug clearly. What is happening, and what did you expect to happen instead?
 
 ### 3. Steps to Reproduce
+
 Provide step-by-step instructions to reproduce the issue:
+
 1. Start the local server with `bun dev` (or `npm run dev`).
 2. Navigate to `http://localhost:3000`.
 3. Click on the "Book Session" CTA.
@@ -33,16 +37,19 @@ Provide step-by-step instructions to reproduce the issue:
 5. Observe the error response.
 
 ### 4. Logs and Error Messages
+
 Include any relevant console logs, server-side stack traces, or Supabase migration logs:
-*   **Browser Console Logs:** Right-click -> Inspect -> Console -> Copy errors.
-*   **Server Terminal Logs:** Output from the TanStack Start / Vinxi server.
-*   **Supabase Database/Docker Logs:** Run `supabase status` or inspect Docker Desktop container logs.
+
+- **Browser Console Logs:** Right-click -> Inspect -> Console -> Copy errors.
+- **Server Terminal Logs:** Output from the TanStack Start / Vinxi server.
+- **Supabase Database/Docker Logs:** Run `supabase status` or inspect Docker Desktop container logs.
 
 ### 5. Environment Details
-*   **OS:** (e.g., Windows 11, macOS Sequoia, Ubuntu 24.04)
-*   **Package Manager / Runtime:** (e.g., Bun v1.1.x, Node.js v20.x, npm v10.x)
-*   **Browser:** (e.g., Chrome v125, Safari v17, Firefox v126)
-*   **Database:** Local Supabase (Docker) or Remote Production
+
+- **OS:** (e.g., Windows 11, macOS Sequoia, Ubuntu 24.04)
+- **Package Manager / Runtime:** (e.g., Bun v1.1.x, Node.js v20.x, npm v10.x)
+- **Browser:** (e.g., Chrome v125, Safari v17, Firefox v126)
+- **Database:** Local Supabase (Docker) or Remote Production
 
 ---
 
@@ -60,7 +67,7 @@ If you have an idea to improve the Barcelona Session Book, we would love to hear
 ## 🛠️ Security Disclosures
 
 > [!WARNING]
-> If you discover a critical security vulnerability (e.g., Row Level Security (RLS) bypass, private information leak, or authorization bypass), **do not** open a public GitHub issue. 
+> If you discover a critical security vulnerability (e.g., Row Level Security (RLS) bypass, private information leak, or authorization bypass), **do not** open a public GitHub issue.
 > Instead, please contact the maintainers directly at security@yourdomain.com to report the vulnerability responsibly.
 
 ---
