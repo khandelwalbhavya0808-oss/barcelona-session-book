@@ -14,7 +14,7 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 2. Configure RLS on storage.objects
 -- Enable RLS on storage.objects if not already enabled (it usually is by default)
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- 3. Storage Policies for 'avatars'
 CREATE POLICY "Public Read Access on avatars" ON storage.objects

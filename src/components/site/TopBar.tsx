@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
 
 const NAV = [
   { label: "About", href: "#about" },
@@ -11,6 +13,11 @@ const NAV = [
 
 export function TopBar() {
   const [open, setOpen] = useState(false);
+  const { user, profile } = useAuth();
+
+  const getDashboardPath = () => {
+    return profile?.role === "admin" ? "/admin/dashboard" : "/dashboard";
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
@@ -37,7 +44,22 @@ export function TopBar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {user ? (
+            <Link
+              to={getDashboardPath()}
+              className="text-[13px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="text-[13px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Login
+            </Link>
+          )}
           <a
             href="#book"
             className="hidden h-9 items-center rounded-sm bg-accent px-5 text-[13px] font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 sm:inline-flex"
@@ -68,6 +90,23 @@ export function TopBar() {
                 {item.label}
               </a>
             ))}
+            {user ? (
+              <Link
+                to={getDashboardPath()}
+                onClick={() => setOpen(false)}
+                className="border-b border-border/60 py-3 text-sm uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="border-b border-border/60 py-3 text-sm uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground"
+              >
+                Login
+              </Link>
+            )}
             <a
               href="#book"
               onClick={() => setOpen(false)}

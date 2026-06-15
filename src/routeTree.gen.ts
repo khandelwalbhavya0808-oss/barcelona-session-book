@@ -9,38 +9,206 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as UnauthorizedRouteImport } from './routes/unauthorized'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ClientRouteImport } from './routes/client'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClientDashboardRouteImport } from './routes/client/dashboard'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 
+const UnauthorizedRoute = UnauthorizedRouteImport.update({
+  id: '/unauthorized',
+  path: '/unauthorized',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClientRoute = ClientRouteImport.update({
+  id: '/client',
+  path: '/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClientDashboardRoute = ClientDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => ClientRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/client': typeof ClientRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/signup': typeof SignupRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/client/dashboard': typeof ClientDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/client': typeof ClientRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/signup': typeof SignupRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/client/dashboard': typeof ClientDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/client': typeof ClientRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/logout': typeof LogoutRoute
+  '/signup': typeof SignupRoute
+  '/unauthorized': typeof UnauthorizedRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/client/dashboard': typeof ClientDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/client'
+    | '/dashboard'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/unauthorized'
+    | '/admin/dashboard'
+    | '/client/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/client'
+    | '/dashboard'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/unauthorized'
+    | '/admin/dashboard'
+    | '/client/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/client'
+    | '/dashboard'
+    | '/login'
+    | '/logout'
+    | '/signup'
+    | '/unauthorized'
+    | '/admin/dashboard'
+    | '/client/dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  ClientRoute: typeof ClientRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  LogoutRoute: typeof LogoutRoute
+  SignupRoute: typeof SignupRoute
+  UnauthorizedRoute: typeof UnauthorizedRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/unauthorized': {
+      id: '/unauthorized'
+      path: '/unauthorized'
+      fullPath: '/unauthorized'
+      preLoaderRoute: typeof UnauthorizedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/client': {
+      id: '/client'
+      path: '/client'
+      fullPath: '/client'
+      preLoaderRoute: typeof ClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +216,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/client/dashboard': {
+      id: '/client/dashboard'
+      path: '/dashboard'
+      fullPath: '/client/dashboard'
+      preLoaderRoute: typeof ClientDashboardRouteImport
+      parentRoute: typeof ClientRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface ClientRouteChildren {
+  ClientDashboardRoute: typeof ClientDashboardRoute
+}
+
+const ClientRouteChildren: ClientRouteChildren = {
+  ClientDashboardRoute: ClientDashboardRoute,
+}
+
+const ClientRouteWithChildren =
+  ClientRoute._addFileChildren(ClientRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  ClientRoute: ClientRouteWithChildren,
+  DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
+  LogoutRoute: LogoutRoute,
+  SignupRoute: SignupRoute,
+  UnauthorizedRoute: UnauthorizedRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
