@@ -1,219 +1,171 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase-client";
-import { Users, Shield, Ban, CheckCircle2, User, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "sonner";
+import { Plus, MoreHorizontal, Mail, Eye, Trash2, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/admin/clients")({
-  component: AdminClientsPage,
+  component: AdminClientsList,
 });
 
-function AdminClientsPage() {
-  const queryClient = useQueryClient();
+const MOCK_CLIENTS = [
+  {
+    id: "c1",
+    name: "Sarah Johnson",
+    email: "sarah.j@example.com",
+    role: "client",
+    joinedDate: "2024-01-15",
+    totalBookings: 24,
+    status: "active",
+    avatar: "",
+  },
+  {
+    id: "c2",
+    name: "Michael Chen",
+    email: "m.chen@example.com",
+    role: "client",
+    joinedDate: "2024-03-22",
+    totalBookings: 8,
+    status: "active",
+    avatar: "",
+  },
+  {
+    id: "c3",
+    name: "Emma Davis",
+    email: "emma.d@example.com",
+    role: "user",
+    joinedDate: "2024-05-10",
+    totalBookings: 0,
+    status: "inactive",
+    avatar: "",
+  },
+];
 
-  // Fetch clients
-  const {
-    data: clients,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["admin-clients"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as any[];
-    },
-  });
-
-  // Toggle role/status mutation
-  const updateClientMutation = useMutation({
-    mutationFn: async ({
-      clientId,
-      role,
-      status,
-      reason,
-    }: {
-      clientId: string;
-      role?: string;
-      status?: string;
-      reason?: string;
-    }) => {
-      const updates: any = {};
-      if (role) updates.role = role;
-      if (status) updates.status = status;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", clientId)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Note: Triggers automatically record client_status_history, but we could insert a log too.
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Client updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["admin-clients"] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to update client profile.");
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-12 text-center text-sm text-destructive">
-        Failed to load clients. Please try refreshing.
-      </div>
-    );
-  }
+function AdminClientsList() {
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-6">
+    <div className="mx-auto max-w-6xl space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            Client Directory
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Manage roles, statuses, and review active client list.
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Clients</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            View and manage all registered users and active clients.
           </p>
         </div>
+        <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Link to="/admin/clients/new" disabled>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Client
+          </Link>
+        </Button>
       </div>
 
-      <div className="rounded-sm border border-border bg-surface overflow-hidden shadow-sm">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-background border-b border-border text-muted-foreground uppercase tracking-wider text-[10px] font-semibold">
-            <tr>
-              <th className="p-4">Name / Email</th>
-              <th className="p-4">Role</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Date Joined</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/50">
-            {clients?.map((client) => {
-              let statusColor = "text-accent bg-accent/10 border-accent/20";
-              if (client.status === "banned" || client.status === "rejected") {
-                statusColor = "text-destructive bg-destructive/10 border-destructive/20";
-              }
-
-              return (
-                <tr key={client.id} className="hover:bg-surface/50 transition-colors">
-                  <td className="p-4 font-semibold text-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-sm bg-background border border-border overflow-hidden flex items-center justify-center">
-                        {client.avatar_url ? (
-                          <img
-                            src={client.avatar_url}
-                            alt="Avatar"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <User className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div>
-                        <span>{client.full_name || "N/A"}</span>
-                        <span className="block text-[10px] text-muted-foreground font-normal mt-0.5">
-                          {client.email}
-                        </span>
-                      </div>
+      <div className="rounded-md border border-border bg-surface">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="w-[300px]">Client</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Joined</TableHead>
+              <TableHead className="text-center">Total Bookings</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {MOCK_CLIENTS.map((client) => (
+              <TableRow key={client.id} className="border-border/50 hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={client.avatar} alt={client.name} />
+                      <AvatarFallback className="bg-muted text-[10px]">
+                        {getInitials(client.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm">{client.name}</span>
+                      <span className="text-xs text-muted-foreground">{client.email}</span>
                     </div>
-                  </td>
-                  <td className="p-4 text-muted-foreground uppercase tracking-wider text-[10px]">
-                    <span className="inline-flex items-center gap-1 rounded-sm border border-border px-2 py-0.5">
-                      {client.role === "admin" && <Shield className="h-3 w-3 text-accent" />}
-                      {client.role}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`inline-flex items-center rounded-sm px-2 py-0.5 font-semibold uppercase tracking-wider text-[9px] border ${statusColor}`}
-                    >
-                      {client.status}
-                    </span>
-                  </td>
-                  <td className="p-4 text-muted-foreground">
-                    {format(new Date(client.created_at), "MMM d, yyyy")}
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <Link
-                      to="/admin/clients/$clientId"
-                      params={{ clientId: client.id }}
-                      className="inline-flex h-7 items-center justify-center rounded-sm border border-border px-3 text-[10px] uppercase font-semibold tracking-wider hover:border-accent hover:text-accent"
-                    >
-                      View Profile
-                    </Link>
-
-                    {/* Status Toggle Actions */}
-                    {client.role !== "admin" && (
-                      <>
-                        {client.status === "active" ? (
-                          <button
-                            onClick={() =>
-                              updateClientMutation.mutate({ clientId: client.id, status: "banned" })
-                            }
-                            className="inline-flex h-7 items-center justify-center rounded-sm border border-destructive/20 text-destructive bg-destructive/5 px-3 text-[10px] uppercase font-semibold tracking-wider hover:bg-destructive/10"
-                          >
-                            <Ban className="mr-1 h-3 w-3" /> Ban
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              updateClientMutation.mutate({ clientId: client.id, status: "active" })
-                            }
-                            className="inline-flex h-7 items-center justify-center rounded-sm border border-accent/20 text-accent bg-accent/5 px-3 text-[10px] uppercase font-semibold tracking-wider hover:bg-accent/10"
-                          >
-                            <CheckCircle2 className="mr-1 h-3 w-3" /> Activate
-                          </button>
-                        )}
-
-                        {/* Promote/Demote */}
-                        {client.role === "user" ? (
-                          <button
-                            onClick={() =>
-                              updateClientMutation.mutate({ clientId: client.id, role: "client" })
-                            }
-                            className="inline-flex h-7 items-center justify-center rounded-sm border border-border px-3 text-[10px] uppercase font-semibold tracking-wider hover:border-accent hover:text-accent"
-                          >
-                            Promote to Client
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              updateClientMutation.mutate({ clientId: client.id, role: "user" })
-                            }
-                            className="inline-flex h-7 items-center justify-center rounded-sm border border-border px-3 text-[10px] uppercase font-semibold tracking-wider hover:border-destructive hover:text-destructive"
-                          >
-                            Demote to User
-                          </button>
-                        )}
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    {client.role}
+                  </span>
+                </TableCell>
+                <TableCell className="text-muted-foreground text-sm">{client.joinedDate}</TableCell>
+                <TableCell className="text-center font-medium">{client.totalBookings}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={client.status === "active" ? "default" : "secondary"}
+                    className={
+                      client.status === "active"
+                        ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20"
+                        : "bg-muted text-muted-foreground border-border"
+                    }
+                  >
+                    {client.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[180px]">
+                      <DropdownMenuItem className="cursor-pointer" asChild>
+                        <Link to={`/admin/clients/${client.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Profile
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Mail className="mr-2 h-4 w-4" />
+                        Message Client
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer">
+                        <ShieldAlert className="mr-2 h-4 w-4" />
+                        Reset Password
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Remove Account
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

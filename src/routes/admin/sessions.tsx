@@ -1,159 +1,142 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase-client";
-import { Loader2, Plus, Edit, ToggleLeft, ToggleRight, MapPin, Clock } from "lucide-react";
-import { toast } from "sonner";
+import { Plus, MoreHorizontal, Copy, Edit2, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/admin/sessions")({
-  component: AdminSessionsListPage,
+  component: AdminSessionsList,
 });
 
-function AdminSessionsListPage() {
-  const queryClient = useQueryClient();
+const MOCK_TEMPLATES = [
+  {
+    id: "t1",
+    title: "1:1 Personal Training (Studio)",
+    duration: 60,
+    price: 65,
+    location: "Studio Barcelona",
+    status: "active",
+    color: "bg-emerald-500",
+  },
+  {
+    id: "t2",
+    title: "Outdoor S&C Group",
+    duration: 90,
+    price: 25,
+    location: "Barceloneta Beach",
+    status: "active",
+    color: "bg-blue-500",
+  },
+  {
+    id: "t3",
+    title: "Consultation Call",
+    duration: 30,
+    price: 0,
+    location: "Google Meet",
+    status: "draft",
+    color: "bg-amber-500",
+  },
+];
 
-  // Fetch templates
-  const {
-    data: sessionTypes,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["admin-session-types"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("session_types")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data as any[];
-    },
-  });
-
-  // Toggle active status mutation
-  const toggleActiveMutation = useMutation({
-    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
-      const { data, error } = await supabase
-        .from("session_types")
-        .update({ is_active: isActive })
-        .eq("id", id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Template active status toggled!");
-      queryClient.invalidateQueries({ queryKey: ["admin-session-types"] });
-    },
-    onError: (err: any) => {
-      toast.error(err.message || "Failed to update template.");
-    },
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 py-12 text-center text-sm text-destructive">
-        Failed to load session templates database. Please try refreshing.
-      </div>
-    );
-  }
-
+function AdminSessionsList() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-6">
+    <div className="mx-auto max-w-6xl space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            Training Templates
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            CRUD core personal training formats and recurring scheduling slot patterns.
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Session Templates</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage your offering categories, pricing, and durations.
           </p>
         </div>
-
-        <Link
-          to="/admin/sessions/new"
-          className="inline-flex h-9 items-center gap-1.5 rounded-sm bg-accent px-4 text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90"
-        >
-          <Plus className="h-4 w-4" /> Create New Template
-        </Link>
+        <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Link to="/admin/sessions/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Template
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {sessionTypes?.map((type) => (
-          <div
-            key={type.id}
-            className="rounded-sm border border-border bg-surface p-6 shadow-sm flex flex-col justify-between space-y-4"
-          >
-            <div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="inline-flex items-center gap-1.5 rounded-sm bg-accent/10 px-2 py-0.5 text-[10px] font-semibold text-accent uppercase tracking-wider">
-                  {type.focus}
-                </span>
-
-                <button
-                  onClick={() =>
-                    toggleActiveMutation.mutate({
-                      id: type.id,
-                      isActive: !type.is_active,
-                    })
-                  }
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                  title={type.is_active ? "Deactivate" : "Activate"}
-                >
-                  {type.is_active ? (
-                    <ToggleRight className="h-6 w-6 text-accent" />
-                  ) : (
-                    <ToggleLeft className="h-6 w-6" />
-                  )}
-                </button>
-              </div>
-
-              <h3 className="font-display font-semibold text-lg text-foreground mt-3">
-                {type.title}
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">
-                {type.description || "No description provided."}
-              </p>
-
-              <div className="space-y-1.5 text-xs text-muted-foreground mt-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-accent" />
-                  <span>
-                    Duration: {type.duration_minutes} min (Max {type.max_slots} slots)
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-accent" />
-                  <span>
-                    {type.location_type} · {type.location_name}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-border/50 flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">
-                Base price: €{Number(type.pricing).toFixed(2)}
-              </span>
-              <Link
-                to="/admin/sessions/edit/$typeId"
-                params={{ typeId: type.id }}
-                className="inline-flex h-8 items-center gap-1 rounded-sm border border-border px-3 text-[10px] uppercase font-semibold tracking-wider hover:border-accent hover:text-accent transition-colors"
-              >
-                <Edit className="h-3.5 w-3.5" /> Edit
-              </Link>
-            </div>
-          </div>
-        ))}
+      <div className="rounded-md border border-border bg-surface">
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead className="w-[300px]">Template Name</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Duration</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {MOCK_TEMPLATES.map((template) => (
+              <TableRow key={template.id} className="border-border/50 hover:bg-muted/50">
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${template.color}`} />
+                    {template.title}
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">{template.location}</TableCell>
+                <TableCell>{template.duration} min</TableCell>
+                <TableCell>€{template.price}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={template.status === "active" ? "default" : "secondary"}
+                    className={
+                      template.status === "active"
+                        ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20"
+                    }
+                  >
+                    {template.status}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Open menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-[160px]">
+                      <DropdownMenuItem className="cursor-pointer" asChild>
+                        <Link to={`/admin/sessions/edit/${template.id}`}>
+                          <Edit2 className="mr-2 h-4 w-4" />
+                          Edit Details
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Copy className="mr-2 h-4 w-4" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase-client";
+import { getAdminDashboardStatsFn, updateBookingStatusFn } from "@/lib/api/admin.functions";
 import {
   Users,
-  Calendar,
+  Calendar as CalendarIcon,
   TrendingUp,
   Settings,
   Plus,
@@ -12,10 +12,21 @@ import {
   Loader2,
   Check,
   X,
-  ShieldAlert,
+  ArrowUpRight,
+  ArrowDownRight,
+  Filter,
 } from "lucide-react";
-import { format, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin/dashboard")({
   component: AdminDashboard,
@@ -26,77 +37,16 @@ function AdminDashboard() {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  const todayStart = startOfDay(new Date()).toISOString();
-  const todayEnd = endOfDay(new Date()).toISOString();
-
-  // Query 1: Total clients
-  const { data: clientsCount, isLoading: clientsLoading } = useQuery({
-    queryKey: ["admin-dashboard-clients-count"],
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ["admin-dashboard-stats"],
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("profiles")
-        .select("*", { count: "exact", head: true })
-        .in("role", ["client", "user"]);
-
-      if (error) throw error;
-      return count || 0;
+      return await getAdminDashboardStatsFn();
     },
   });
 
-  // Query 2: Weekly Bookings
-  const { data: weeklyBookings, isLoading: weeklyLoading } = useQuery({
-    queryKey: ["admin-dashboard-weekly-bookings"],
-    queryFn: async () => {
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-      const { data, error } = await supabase
-        .from("bookings")
-        .select("id, status")
-        .gte("created_at", oneWeekAgo.toISOString());
-
-      if (error) throw error;
-      return data || [];
-    },
-  });
-
-  // Query 3: Today's Scheduled Sessions
-  const { data: todaySessions, isLoading: sessionsLoading } = useQuery({
-    queryKey: ["admin-dashboard-today-sessions"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("scheduled_sessions")
-        .select(
-          `
-          id,
-          start_time,
-          end_time,
-          location_name,
-          max_slots,
-          session_types (
-            title,
-            focus,
-            duration_minutes
-          ),
-          bookings (
-            id,
-            status,
-            client_id,
-            profiles (
-              full_name,
-              email
-            )
-          )
-        `,
-        )
-        .gte("start_time", todayStart)
-        .lte("start_time", todayEnd)
-        .order("start_time", { ascending: true });
-
-      if (error) throw error;
-      return data as any[];
-    },
-  });
+  const clientsCount = dashboardData?.clientsCount || 0;
+  const weeklyBookings = dashboardData?.weeklyBookings || [];
+  const todaySessions = dashboardData?.todaySessions || [];
 
   // Check in mutation
   const checkInMutation = useMutation({
@@ -107,30 +57,22 @@ function AdminDashboard() {
       bookingId: string;
       status: "attended" | "no-show";
     }) => {
-      const { data, error } = await supabase
-        .from("bookings")
-        .update({ status })
-        .eq("id", bookingId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return await updateBookingStatusFn({ data: { bookingId, status } });
     },
     onSuccess: () => {
       toast.success("Client checked in successfully!");
-      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-today-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-stats"] });
     },
     onError: (err: any) => {
       toast.error(err.message || "Check-in failed.");
     },
   });
 
-  const isLoading = authLoading || clientsLoading || weeklyLoading || sessionsLoading;
+  const isLoading = authLoading || dashboardLoading;
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex h-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
@@ -148,226 +90,272 @@ function AdminDashboard() {
       : 100;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-6">
+    <div className="mx-auto max-w-6xl space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-            Admin Dashboard
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Manage training slots, client accounts, waitlists, and view occupancy.
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Overview</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor your business performance and daily schedule.
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            to="/admin/sessions/new"
-            className="inline-flex h-9 items-center gap-1.5 rounded-sm bg-accent px-4 text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" /> Create Template
-          </Link>
-          <Link
-            to="/admin/settings"
-            className="inline-flex h-9 items-center gap-1.5 rounded-sm border border-border px-4 text-xs font-semibold uppercase tracking-wider text-foreground transition-colors hover:border-accent hover:text-accent"
-          >
-            <Settings className="h-4 w-4" /> System Settings
-          </Link>
+        
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-surface border border-border rounded-md px-3 h-10">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select defaultValue="7d">
+              <SelectTrigger className="h-8 w-[130px] border-0 bg-transparent shadow-none focus:ring-0 p-0 text-sm">
+                <SelectValue placeholder="Select Range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {/* Metrics Row */}
-      <div className="grid gap-6 sm:grid-cols-3 mb-10">
-        <div className="rounded-sm border border-border bg-surface p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Total Clients
-            </span>
-            <Users className="h-5 w-5 text-accent" />
-          </div>
-          <p className="text-3xl font-display font-semibold text-foreground">{clientsCount}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Registered user profiles</p>
-        </div>
+      <div className="grid gap-6 sm:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Total Clients</CardTitle>
+            <Users className="h-4 w-4 text-accent" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-display font-semibold">{clientsCount}</div>
+            <div className="flex items-center mt-1 text-xs text-emerald-500 font-medium">
+              <ArrowUpRight className="mr-1 h-3 w-3" />
+              +12% from last period
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-sm border border-border bg-surface p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Weekly Bookings
-            </span>
-            <Calendar className="h-5 w-5 text-accent" />
-          </div>
-          <p className="text-3xl font-display font-semibold text-foreground">
-            {totalBookingsCount}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {confirmedCount} active bookings pending
-          </p>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Period Bookings</CardTitle>
+            <CalendarIcon className="h-4 w-4 text-accent" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-display font-semibold">{totalBookingsCount}</div>
+            <div className="flex items-center mt-1 text-xs text-emerald-500 font-medium">
+              <ArrowUpRight className="mr-1 h-3 w-3" />
+              +8% from last period
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="rounded-sm border border-border bg-surface p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Attendance Ratio
-            </span>
-            <TrendingUp className="h-5 w-5 text-accent" />
-          </div>
-          <p className="text-3xl font-display font-semibold text-foreground">{completedRatio}%</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {attendedCount} attended, {noShowCount} no-show
-          </p>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Attendance Ratio</CardTitle>
+            <TrendingUp className="h-4 w-4 text-accent" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-display font-semibold">{completedRatio}%</div>
+            <div className="flex items-center mt-1 text-xs text-rose-500 font-medium">
+              <ArrowDownRight className="mr-1 h-3 w-3" />
+              -2% from last period
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Contextual Quick Actions */}
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+          <Link to="/admin/sessions/new">
+            <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+              <Plus className="h-5 w-5 text-accent" />
+            </div>
+            <span className="font-semibold uppercase tracking-wider text-xs">Create Template</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+          <Link to="/admin/clients">
+            <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+              <Users className="h-5 w-5 text-accent" />
+            </div>
+            <span className="font-semibold uppercase tracking-wider text-xs">Add Client</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+          <Link to="/admin/bookings">
+            <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5 text-accent" />
+            </div>
+            <span className="font-semibold uppercase tracking-wider text-xs">Log Booking</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+          <Link to="/admin/settings">
+            <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+              <Settings className="h-5 w-5 text-accent" />
+            </div>
+            <span className="font-semibold uppercase tracking-wider text-xs">System Settings</span>
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-8 md:grid-cols-[2fr_1fr]">
         {/* Left Column: Today's Schedule and Check-in */}
-        <div className="rounded-sm border border-border bg-surface p-6 shadow-sm space-y-6">
-          <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Today's Scheduled Sessions ({todaySessions?.length || 0})
-          </h2>
+        <Card className="border-border shadow-sm">
+          <CardHeader>
+            <CardTitle className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Today's Scheduled Sessions ({todaySessions?.length || 0})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {!todaySessions || todaySessions.length === 0 ? (
+              <div className="rounded-sm border border-dashed border-border py-12 text-center text-sm text-muted-foreground bg-background/50">
+                No sessions scheduled for today.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {todaySessions.map((session) => {
+                  const confirmed =
+                    session.bookings?.filter((b: any) => b.status === "confirmed") || [];
+                  const attended =
+                    session.bookings?.filter((b: any) => b.status === "attended") || [];
+                  const noShow = session.bookings?.filter((b: any) => b.status === "no-show") || [];
+                  const allBookings = session.bookings || [];
 
-          {!todaySessions || todaySessions.length === 0 ? (
-            <div className="rounded-sm border border-dashed border-border py-12 text-center text-sm text-muted-foreground bg-background/50">
-              No sessions scheduled for today.
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {todaySessions.map((session) => {
-                const confirmed =
-                  session.bookings?.filter((b: any) => b.status === "confirmed") || [];
-                const attended =
-                  session.bookings?.filter((b: any) => b.status === "attended") || [];
-                const noShow = session.bookings?.filter((b: any) => b.status === "no-show") || [];
-                const allBookings = session.bookings || [];
-
-                return (
-                  <div
-                    key={session.id}
-                    className="border-b border-border/50 pb-6 last:border-0 last:pb-0 space-y-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-display font-semibold text-lg text-accent">
-                            {format(new Date(session.start_time), "HH:mm")}
-                          </span>
-                          <h3 className="font-semibold text-sm">{session.session_types?.title}</h3>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {session.location_name} · Duration:{" "}
-                          {session.session_types?.duration_minutes} min
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground bg-background px-2 py-0.5 border border-border rounded-sm">
-                          {confirmed.length + attended.length}/{session.max_slots} Booked
-                        </span>
-                        <Link
-                          to="/admin/sessions/$sessionId"
-                          params={{ sessionId: session.id }}
-                          className="inline-flex h-7 items-center justify-center rounded-sm border border-border px-3 text-[10px] uppercase font-semibold tracking-wider hover:border-accent hover:text-accent"
-                        >
-                          Details
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Booked Client List for checking in */}
-                    {allBookings.length === 0 ? (
-                      <p className="text-xs text-muted-foreground italic pl-6">
-                        No clients registered for this slot.
-                      </p>
-                    ) : (
-                      <div className="pl-6 space-y-2">
-                        <span className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground block">
-                          Registered Clients
-                        </span>
-                        {allBookings.map((b: any) => (
-                          <div
-                            key={b.id}
-                            className="flex items-center justify-between gap-4 p-2 bg-background/50 rounded-sm border border-border/40 text-xs"
-                          >
-                            <div>
-                              <span className="font-medium text-foreground">
-                                {b.profiles?.full_name || "N/A"}
-                              </span>
-                              <span className="text-muted-foreground block text-[10px]">
-                                {b.profiles?.email}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {b.status === "confirmed" ? (
-                                <>
-                                  <button
-                                    onClick={() =>
-                                      checkInMutation.mutate({
-                                        bookingId: b.id,
-                                        status: "attended",
-                                      })
-                                    }
-                                    className="h-6 w-6 rounded-sm bg-accent/20 border border-accent/30 text-accent flex items-center justify-center hover:bg-accent/30"
-                                    title="Mark Attended"
-                                  >
-                                    <Check className="h-3.5 w-3.5" />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      checkInMutation.mutate({ bookingId: b.id, status: "no-show" })
-                                    }
-                                    className="h-6 w-6 rounded-sm bg-destructive/20 border border-destructive/30 text-destructive flex items-center justify-center hover:bg-destructive/30"
-                                    title="Mark No-Show"
-                                  >
-                                    <X className="h-3.5 w-3.5" />
-                                  </button>
-                                </>
-                              ) : (
-                                <span
-                                  className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
-                                    b.status === "attended"
-                                      ? "bg-accent/10 border-accent/20 text-accent"
-                                      : "bg-destructive/10 border-destructive/20 text-destructive"
-                                  }`}
-                                >
-                                  {b.status}
-                                </span>
-                              )}
-                            </div>
+                  return (
+                    <div
+                      key={session.id}
+                      className="border-b border-border/50 pb-6 last:border-0 last:pb-0 space-y-4"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-display font-semibold text-lg text-accent">
+                              {format(new Date(session.start_time), "HH:mm")}
+                            </span>
+                            <h3 className="font-semibold text-sm">{session.session_types?.title}</h3>
                           </div>
-                        ))}
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {session.location_name} · Duration:{" "}
+                            {session.session_types?.duration_minutes} min
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">
+                            {confirmed.length + attended.length}/{session.max_slots} Booked
+                          </span>
+                          <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase font-semibold tracking-wider px-3" asChild>
+                            <Link to={`/admin/sessions/${session.id}`}>Details</Link>
+                          </Button>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+
+                      {/* Booked Client List for checking in */}
+                      {allBookings.length === 0 ? (
+                        <p className="text-xs text-muted-foreground italic pl-6">
+                          No clients registered for this slot.
+                        </p>
+                      ) : (
+                        <div className="pl-6 space-y-2">
+                          <span className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground block">
+                            Registered Clients
+                          </span>
+                          {allBookings.map((b: any) => (
+                            <div
+                              key={b.id}
+                              className="flex items-center justify-between gap-4 p-2 bg-muted/30 rounded-sm border border-border/40 text-xs hover:bg-muted/50 transition-colors"
+                            >
+                              <div>
+                                <span className="font-medium text-foreground">
+                                  {b.profiles?.full_name || "N/A"}
+                                </span>
+                                <span className="text-muted-foreground block text-[10px]">
+                                  {b.profiles?.email}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {b.status === "confirmed" ? (
+                                  <>
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      className="h-6 w-6 rounded-sm bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 hover:text-emerald-600"
+                                      onClick={() =>
+                                        checkInMutation.mutate({
+                                          bookingId: b.id,
+                                          status: "attended",
+                                        })
+                                      }
+                                      title="Mark Attended"
+                                    >
+                                      <Check className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button
+                                      size="icon"
+                                      variant="outline"
+                                      className="h-6 w-6 rounded-sm bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20 hover:text-rose-600"
+                                      onClick={() =>
+                                        checkInMutation.mutate({ bookingId: b.id, status: "no-show" })
+                                      }
+                                      title="Mark No-Show"
+                                    >
+                                      <X className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <span
+                                    className={`inline-flex items-center rounded-sm px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border ${
+                                      b.status === "attended"
+                                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
+                                        : "bg-rose-500/10 border-rose-500/20 text-rose-500"
+                                    }`}
+                                  >
+                                    {b.status}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Right Column: Admin details verification */}
         <div className="space-y-6">
-          <div className="rounded-sm border border-border bg-surface p-6 shadow-sm">
-            <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-              Authorized Session
-            </h2>
-            <div className="space-y-3 text-xs">
-              <div className="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border">
-                <UserCheck className="h-4 w-4 text-accent" />
-                <span>Logged in as Admin</span>
+          <Card className="border-border shadow-sm">
+            <CardHeader>
+              <CardTitle className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Authorized Session
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 text-xs">
+                <div className="flex items-center gap-2 text-foreground font-medium pb-2 border-b border-border">
+                  <UserCheck className="h-4 w-4 text-accent" />
+                  <span>Logged in as Admin</span>
+                </div>
+                <div className="pt-1">
+                  <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Name
+                  </span>
+                  <span className="text-foreground font-semibold text-sm">
+                    {profile?.full_name || "Alex Moreno"}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Admin Email
+                  </span>
+                  <span className="text-foreground">{profile?.email}</span>
+                </div>
               </div>
-              <div className="pt-1">
-                <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Name
-                </span>
-                <span className="text-foreground font-semibold text-sm">
-                  {profile?.full_name || "Alex Moreno"}
-                </span>
-              </div>
-              <div>
-                <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Admin Email
-                </span>
-                <span className="text-foreground">{profile?.email}</span>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

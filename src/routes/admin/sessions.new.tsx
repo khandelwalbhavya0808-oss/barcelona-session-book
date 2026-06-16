@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase-client";
+import { createSessionTypeTemplateFn } from "@/lib/api/admin.functions";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -28,10 +28,8 @@ function AdminSessionsNewPage() {
 
   const createTemplateMutation = useMutation({
     mutationFn: async () => {
-      // 1. Insert session type template
-      const { data: template, error: templateError } = await supabase
-        .from("session_types")
-        .insert({
+      return await createSessionTypeTemplateFn({
+        data: {
           title,
           description,
           focus,
@@ -40,26 +38,12 @@ function AdminSessionsNewPage() {
           pricing: parseFloat(pricing),
           max_slots: maxSlots,
           duration_minutes: durationMinutes,
-          is_active: true,
-        })
-        .select()
-        .single();
-
-      if (templateError) throw templateError;
-
-      // 2. Insert availability rule if requested
-      if (addRule && template) {
-        const { error: ruleError } = await supabase.from("availability_rules").insert({
-          session_type_id: template.id,
-          day_of_week: dayOfWeek,
-          start_time: startTime + ":00",
-          end_time: endTime + ":00",
-        });
-
-        if (ruleError) throw ruleError;
-      }
-
-      return template;
+          addRule,
+          dayOfWeek,
+          startTime,
+          endTime,
+        },
+      });
     },
     onSuccess: () => {
       toast.success("Training template created successfully!");
