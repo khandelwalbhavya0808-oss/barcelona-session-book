@@ -4,7 +4,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, Camera, User, Mail, Calendar } from "lucide-react";
+import {
+  Loader2,
+  ArrowLeft,
+  Camera,
+  User,
+  Mail,
+  Calendar,
+  Shield,
+  Activity,
+  Clock,
+  Key,
+} from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/profile")({
@@ -180,8 +191,11 @@ function ProfilePage() {
               )}
             </div>
 
-            {/* Fields */}
+            {/* Personal Details Section */}
             <div className="space-y-4">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-accent border-b border-border/40 pb-1.5">
+                Personal Details
+              </h2>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5 text-accent" /> Full Name
@@ -193,6 +207,25 @@ function ProfilePage() {
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="John Doe"
                   className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground placeholder-muted-foreground/50 focus:border-accent focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Account Details Section */}
+            <div className="space-y-4 pt-2">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-accent border-b border-border/40 pb-1.5">
+                Account Details
+              </h2>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Key className="h-3.5 w-3.5 text-accent" /> User ID
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={profile?.id || ""}
+                  className="mt-1.5 block w-full rounded-sm border border-border bg-background/50 px-3 py-2 text-sm text-muted-foreground focus:outline-none cursor-not-allowed font-mono text-xs"
                 />
               </div>
 
@@ -211,6 +244,38 @@ function ProfilePage() {
                 </span>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Shield className="h-3.5 w-3.5 text-accent" /> Role
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={
+                      profile ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1) : ""
+                    }
+                    className="mt-1.5 block w-full rounded-sm border border-border bg-background/50 px-3 py-2 text-sm text-muted-foreground focus:outline-none cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Activity className="h-3.5 w-3.5 text-accent" /> Status
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={
+                      profile
+                        ? profile.status.charAt(0).toUpperCase() + profile.status.slice(1)
+                        : ""
+                    }
+                    className="mt-1.5 block w-full rounded-sm border border-border bg-background/50 px-3 py-2 text-sm text-muted-foreground focus:outline-none cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5 text-accent" /> Account Created
@@ -219,6 +284,18 @@ function ProfilePage() {
                   type="text"
                   disabled
                   value={profile ? format(new Date(profile.created_at), "MMMM d, yyyy") : ""}
+                  className="mt-1.5 block w-full rounded-sm border border-border bg-background/50 px-3 py-2 text-sm text-muted-foreground focus:outline-none cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-accent" /> Last Updated
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={profile ? format(new Date(profile.updated_at), "MMMM d, yyyy h:mm a") : ""}
                   className="mt-1.5 block w-full rounded-sm border border-border bg-background/50 px-3 py-2 text-sm text-muted-foreground focus:outline-none cursor-not-allowed"
                 />
               </div>
