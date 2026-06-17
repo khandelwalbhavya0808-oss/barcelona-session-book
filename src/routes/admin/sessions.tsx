@@ -22,37 +22,16 @@ export const Route = createFileRoute("/admin/sessions")({
   component: AdminSessionsList,
 });
 
-const MOCK_TEMPLATES = [
-  {
-    id: "t1",
-    title: "1:1 Personal Training (Studio)",
-    duration: 60,
-    price: 65,
-    location: "Studio Barcelona",
-    status: "active",
-    color: "bg-emerald-500",
-  },
-  {
-    id: "t2",
-    title: "Outdoor S&C Group",
-    duration: 90,
-    price: 25,
-    location: "Barceloneta Beach",
-    status: "active",
-    color: "bg-blue-500",
-  },
-  {
-    id: "t3",
-    title: "Consultation Call",
-    duration: 30,
-    price: 0,
-    location: "Google Meet",
-    status: "draft",
-    color: "bg-amber-500",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAdminSessionTypesFn } from "@/lib/api/admin.functions";
 
 function AdminSessionsList() {
+  const { data: templates, isLoading } = useQuery({
+    queryKey: ["admin-session-types"],
+    queryFn: async () => await getAdminSessionTypesFn(),
+  });
+
+  const displayTemplates = templates || [];
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -83,7 +62,20 @@ function AdminSessionsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_TEMPLATES.map((template) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  Loading templates...
+                </TableCell>
+              </TableRow>
+            ) : displayTemplates.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  No templates found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              displayTemplates.map((template: any) => (
               <TableRow key={template.id} className="border-border/50 hover:bg-muted/50">
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
@@ -91,19 +83,19 @@ function AdminSessionsList() {
                     {template.title}
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{template.location}</TableCell>
-                <TableCell>{template.duration} min</TableCell>
-                <TableCell>€{template.price}</TableCell>
+                <TableCell className="text-muted-foreground">{template.location_name}</TableCell>
+                <TableCell>{template.duration_minutes} min</TableCell>
+                <TableCell>€{template.pricing}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={template.status === "active" ? "default" : "secondary"}
+                    variant={template.is_active ? "default" : "secondary"}
                     className={
-                      template.status === "active"
+                      template.is_active
                         ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20"
                         : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20"
                     }
                   >
-                    {template.status}
+                    {template.is_active ? "active" : "draft"}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -134,7 +126,8 @@ function AdminSessionsList() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

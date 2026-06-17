@@ -163,7 +163,15 @@ function AdminDashboard() {
       </div>
 
       {/* Contextual Quick Actions */}
-      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
+        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+          <Link to="/admin/sessions/schedule">
+            <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
+              <CalendarIcon className="h-5 w-5 text-accent" />
+            </div>
+            <span className="font-semibold uppercase tracking-wider text-xs">Schedule Session</span>
+          </Link>
+        </Button>
         <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
           <Link to="/admin/sessions/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">

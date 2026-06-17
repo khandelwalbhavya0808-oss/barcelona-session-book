@@ -79,6 +79,59 @@ export const getAdminDashboardStatsFn = createServerFn({ method: "GET" }).handle
   };
 });
 
+export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase } = await verifyAdmin();
+
+  const now = new Date();
+
+  const { data, error } = await supabase
+    .from("scheduled_sessions")
+    .select(`
+      id,
+      start_time,
+      end_time,
+      location_name,
+      max_slots,
+      session_types (
+        title,
+        duration_minutes
+      )
+    `)
+    .gte("start_time", now.toISOString())
+    .order("start_time", { ascending: true })
+    .limit(50);
+
+  if (error) throw error;
+  return data || [];
+});
+
+export const scheduleSessionFn = createServerFn({ method: "POST" })
+  .validator(z.object({
+    sessionTypeId: z.string().uuid(),
+    startTime: z.string(),
+    endTime: z.string(),
+    maxSlots: z.number(),
+    locationName: z.string(),
+  }))
+  .handler(async ({ data }) => {
+    const { supabase } = await verifyAdmin();
+    
+    const { data: result, error } = await supabase
+      .from("scheduled_sessions")
+      .insert({
+        session_type_id: data.sessionTypeId,
+        start_time: data.startTime,
+        end_time: data.endTime,
+        max_slots: data.maxSlots,
+        location_name: data.locationName,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
+  });
+
 export const updateBookingStatusFn = createServerFn({ method: "POST" })
   .validator(z.object({
     bookingId: z.string().uuid(),

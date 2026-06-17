@@ -23,40 +23,17 @@ export const Route = createFileRoute("/admin/clients")({
   component: AdminClientsList,
 });
 
-const MOCK_CLIENTS = [
-  {
-    id: "c1",
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    role: "client",
-    joinedDate: "2024-01-15",
-    totalBookings: 24,
-    status: "active",
-    avatar: "",
-  },
-  {
-    id: "c2",
-    name: "Michael Chen",
-    email: "m.chen@example.com",
-    role: "client",
-    joinedDate: "2024-03-22",
-    totalBookings: 8,
-    status: "active",
-    avatar: "",
-  },
-  {
-    id: "c3",
-    name: "Emma Davis",
-    email: "emma.d@example.com",
-    role: "user",
-    joinedDate: "2024-05-10",
-    totalBookings: 0,
-    status: "inactive",
-    avatar: "",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAdminClientsFn } from "@/lib/api/admin.functions";
+import { format } from "date-fns";
 
 function AdminClientsList() {
+  const { data: clients, isLoading } = useQuery({
+    queryKey: ["admin-clients"],
+    queryFn: async () => await getAdminClientsFn(),
+  });
+
+  const displayClients = clients || [];
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -96,18 +73,31 @@ function AdminClientsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_CLIENTS.map((client) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  Loading clients...
+                </TableCell>
+              </TableRow>
+            ) : displayClients.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  No clients found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              displayClients.map((client: any) => (
               <TableRow key={client.id} className="border-border/50 hover:bg-muted/50">
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={client.avatar} alt={client.name} />
+                      <AvatarImage src={client.avatar_url || ""} alt={client.full_name || client.email} />
                       <AvatarFallback className="bg-muted text-[10px]">
-                        {getInitials(client.name)}
+                        {getInitials(client.full_name || "Unknown")}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                      <span className="text-sm">{client.name}</span>
+                      <span className="text-sm">{client.full_name || "Unknown User"}</span>
                       <span className="text-xs text-muted-foreground">{client.email}</span>
                     </div>
                   </div>
@@ -117,8 +107,8 @@ function AdminClientsList() {
                     {client.role}
                   </span>
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">{client.joinedDate}</TableCell>
-                <TableCell className="text-center font-medium">{client.totalBookings}</TableCell>
+                <TableCell className="text-muted-foreground text-sm">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
+                <TableCell className="text-center font-medium">N/A</TableCell>
                 <TableCell>
                   <Badge
                     variant={client.status === "active" ? "default" : "secondary"}
@@ -163,7 +153,8 @@ function AdminClientsList() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

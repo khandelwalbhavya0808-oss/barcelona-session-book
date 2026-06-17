@@ -30,31 +30,16 @@ export const Route = createFileRoute("/admin/bookings")({
   component: AdminBookingsList,
 });
 
-const MOCK_BOOKINGS = [
-  {
-    id: "b1",
-    clientName: "Sarah Johnson",
-    sessionTitle: "1:1 Personal Training (Studio)",
-    date: new Date().toISOString(),
-    status: "confirmed",
-  },
-  {
-    id: "b2",
-    clientName: "Michael Chen",
-    sessionTitle: "Outdoor S&C Group",
-    date: new Date(Date.now() - 86400000).toISOString(),
-    status: "attended",
-  },
-  {
-    id: "b3",
-    clientName: "Emma Davis",
-    sessionTitle: "1:1 Personal Training (Studio)",
-    date: new Date(Date.now() + 86400000 * 2).toISOString(),
-    status: "cancelled",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getAdminBookingsFn } from "@/lib/api/admin.functions";
 
 function AdminBookingsList() {
+  const { data: bookings, isLoading } = useQuery({
+    queryKey: ["admin-bookings"],
+    queryFn: async () => await getAdminBookingsFn(),
+  });
+
+  const displayBookings = bookings || [];
   return (
     <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -100,16 +85,29 @@ function AdminBookingsList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {MOCK_BOOKINGS.map((booking) => (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  Loading bookings...
+                </TableCell>
+              </TableRow>
+            ) : displayBookings.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                  No bookings found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              displayBookings.map((booking: any) => (
               <TableRow key={booking.id} className="border-border/50 hover:bg-muted/50">
                 <TableCell className="font-medium whitespace-nowrap">
-                  {format(new Date(booking.date), "MMM d, yyyy")}
+                  {format(new Date(booking.scheduled_sessions?.start_time || booking.created_at), "MMM d, yyyy")}
                   <span className="block text-xs text-muted-foreground mt-0.5">
-                    {format(new Date(booking.date), "HH:mm")}
+                    {format(new Date(booking.scheduled_sessions?.start_time || booking.created_at), "HH:mm")}
                   </span>
                 </TableCell>
-                <TableCell className="font-medium">{booking.clientName}</TableCell>
-                <TableCell className="text-muted-foreground">{booking.sessionTitle}</TableCell>
+                <TableCell className="font-medium">{booking.profiles?.full_name || booking.profiles?.email}</TableCell>
+                <TableCell className="text-muted-foreground">{booking.scheduled_sessions?.session_types?.title || "Custom Session"}</TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -150,7 +148,8 @@ function AdminBookingsList() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>

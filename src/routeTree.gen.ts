@@ -28,6 +28,7 @@ import { Route as AdminReportingRouteImport } from './routes/admin/reporting'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminClientsRouteImport } from './routes/admin/clients'
 import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
+import { Route as AdminSessionsScheduleRouteImport } from './routes/admin/sessions.schedule'
 import { Route as AdminSessionsNewRouteImport } from './routes/admin/sessions.new'
 import { Route as AdminSessionsSessionIdRouteImport } from './routes/admin/sessions.$sessionId'
 import { Route as AdminClientsNewRouteImport } from './routes/admin/clients.new'
@@ -130,6 +131,11 @@ const AdminBookingsRoute = AdminBookingsRouteImport.update({
   path: '/bookings',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSessionsScheduleRoute = AdminSessionsScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AdminSessionsRoute,
+} as any)
 const AdminSessionsNewRoute = AdminSessionsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -186,6 +192,7 @@ export interface FileRoutesByFullPath {
   '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/admin/sessions/schedule': typeof AdminSessionsScheduleRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
 }
 export interface FileRoutesByTo {
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/admin/sessions/schedule': typeof AdminSessionsScheduleRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
 }
 export interface FileRoutesById {
@@ -241,6 +249,7 @@ export interface FileRoutesById {
   '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
+  '/admin/sessions/schedule': typeof AdminSessionsScheduleRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
 }
 export interface FileRouteTypes {
@@ -270,6 +279,7 @@ export interface FileRouteTypes {
     | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
+    | '/admin/sessions/schedule'
     | '/admin/sessions/edit/$typeId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -297,6 +307,7 @@ export interface FileRouteTypes {
     | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
+    | '/admin/sessions/schedule'
     | '/admin/sessions/edit/$typeId'
   id:
     | '__root__'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
+    | '/admin/sessions/schedule'
     | '/admin/sessions/edit/$typeId'
   fileRoutesById: FileRoutesById
 }
@@ -476,6 +488,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBookingsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/sessions/schedule': {
+      id: '/admin/sessions/schedule'
+      path: '/schedule'
+      fullPath: '/admin/sessions/schedule'
+      preLoaderRoute: typeof AdminSessionsScheduleRouteImport
+      parentRoute: typeof AdminSessionsRoute
+    }
     '/admin/sessions/new': {
       id: '/admin/sessions/new'
       path: '/new'
@@ -550,12 +569,14 @@ const AdminClientsRouteWithChildren = AdminClientsRoute._addFileChildren(
 interface AdminSessionsRouteChildren {
   AdminSessionsSessionIdRoute: typeof AdminSessionsSessionIdRoute
   AdminSessionsNewRoute: typeof AdminSessionsNewRoute
+  AdminSessionsScheduleRoute: typeof AdminSessionsScheduleRoute
   AdminSessionsEditTypeIdRoute: typeof AdminSessionsEditTypeIdRoute
 }
 
 const AdminSessionsRouteChildren: AdminSessionsRouteChildren = {
   AdminSessionsSessionIdRoute: AdminSessionsSessionIdRoute,
   AdminSessionsNewRoute: AdminSessionsNewRoute,
+  AdminSessionsScheduleRoute: AdminSessionsScheduleRoute,
   AdminSessionsEditTypeIdRoute: AdminSessionsEditTypeIdRoute,
 }
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { createBookingFn, getAdminClientsFn, getAdminDashboardStatsFn } from "@/lib/api/admin.functions";
+import { createBookingFn, getAdminClientsFn, getAdminUpcomingSessionsFn } from "@/lib/api/admin.functions";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -22,14 +22,10 @@ function AdminBookingsNewPage() {
     queryFn: async () => await getAdminClientsFn(),
   });
 
-  // Fetch today's sessions from dashboard stats as a simple way to get some sessions,
-  // in a real app you'd have a specific query for upcoming sessions.
-  const { data: dashboardData, isLoading: sessionsLoading } = useQuery({
-    queryKey: ["admin-dashboard-stats"],
-    queryFn: async () => await getAdminDashboardStatsFn(),
+  const { data: upcomingSessions, isLoading: sessionsLoading } = useQuery({
+    queryKey: ["admin-upcoming-sessions"],
+    queryFn: async () => await getAdminUpcomingSessionsFn(),
   });
-
-  const upcomingSessions = dashboardData?.todaySessions || [];
 
   const createBookingMutation = useMutation({
     mutationFn: async () => {
