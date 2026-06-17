@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/admin/sessions")({
+export const Route = createFileRoute("/admin/sessions/")({
   component: AdminSessionsList,
 });
 

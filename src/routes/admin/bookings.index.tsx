@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 
-export const Route = createFileRoute("/admin/bookings")({
+export const Route = createFileRoute("/admin/bookings/")({
   component: AdminBookingsList,
 });
 
