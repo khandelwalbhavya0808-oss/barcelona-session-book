@@ -76,7 +76,7 @@ function AdminClientsList() {
           </p>
         </div>
         <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-          <Link to="/admin/clients/new" disabled>
+          <Link to="/admin/clients/new">
             <Plus className="mr-2 h-4 w-4" />
             Add Client
           </Link>

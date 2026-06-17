@@ -138,6 +138,38 @@ export const updateClientRoleFn = createServerFn({ method: "POST" })
     return result;
   });
 
+export const createClientFn = createServerFn({ method: "POST" })
+  .validator(z.object({
+    fullName: z.string(),
+    email: z.string().email(),
+    role: z.enum(["user", "client"]).default("client"),
+  }))
+  .handler(async ({ data }) => {
+    const { supabase } = await verifyAdmin();
+    const serviceRoleSupabase = await createServerSupabaseServiceRole();
+
+    // Create user via Admin API
+    const { data: authData, error: authError } = await serviceRoleSupabase.auth.admin.createUser({
+      email: data.email,
+      email_confirm: true,
+      user_metadata: { full_name: data.fullName },
+      // Generate a random temporary password
+      password: Math.random().toString(36).slice(-10) + "A1!",
+    });
+
+    if (authError) throw authError;
+
+    // Update profile role
+    if (authData.user) {
+      await serviceRoleSupabase
+        .from("profiles")
+        .update({ role: data.role, full_name: data.fullName })
+        .eq("id", authData.user.id);
+    }
+
+    return authData.user;
+  });
+
 export const getAdminBookingsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { supabase } = await verifyAdmin();
 
@@ -170,6 +202,30 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" }).handler(asyn
   if (error) throw error;
   return data || [];
 });
+
+export const createBookingFn = createServerFn({ method: "POST" })
+  .validator(z.object({
+    clientId: z.string().uuid(),
+    sessionId: z.string().uuid(),
+    status: z.enum(["confirmed", "attended", "cancelled"]).default("confirmed"),
+  }))
+  .handler(async ({ data }) => {
+    const { supabase } = await verifyAdmin();
+    
+    const { data: result, error } = await supabase
+      .from("bookings")
+      .insert({
+        client_id: data.clientId,
+        session_id: data.sessionId,
+        status: data.status,
+        payment_status: "pending",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
+  });
 
 export const updateBookingPaymentStatusFn = createServerFn({ method: "POST" })
   .validator(z.object({
@@ -271,4 +327,41 @@ export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
     }
 
     return template;
+  });
+
+export const getSiteSettingsFn = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabase } = await verifyAdmin();
+
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  if (error) throw error;
+  return data;
+});
+
+export const updateSiteSettingsFn = createServerFn({ method: "POST" })
+  .validator(z.object({
+    maintenance_mode: z.boolean(),
+    cancellation_grace_period_hours: z.number().min(0),
+    contact_email: z.string().email(),
+  }))
+  .handler(async ({ data }) => {
+    const { supabase } = await verifyAdmin();
+    
+    const { data: result, error } = await supabase
+      .from("site_settings")
+      .update({
+        maintenance_mode: data.maintenance_mode,
+        cancellation_grace_period_hours: data.cancellation_grace_period_hours,
+        contact_email: data.contact_email
+      })
+      .eq("id", 1)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return result;
   });

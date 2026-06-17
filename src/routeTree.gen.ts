@@ -30,7 +30,9 @@ import { Route as AdminClientsRouteImport } from './routes/admin/clients'
 import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
 import { Route as AdminSessionsNewRouteImport } from './routes/admin/sessions.new'
 import { Route as AdminSessionsSessionIdRouteImport } from './routes/admin/sessions.$sessionId'
+import { Route as AdminClientsNewRouteImport } from './routes/admin/clients.new'
 import { Route as AdminClientsClientIdRouteImport } from './routes/admin/clients.$clientId'
+import { Route as AdminBookingsNewRouteImport } from './routes/admin/bookings.new'
 import { Route as AdminSessionsEditTypeIdRouteImport } from './routes/admin/sessions.edit.$typeId'
 
 const UnauthorizedRoute = UnauthorizedRouteImport.update({
@@ -138,10 +140,20 @@ const AdminSessionsSessionIdRoute = AdminSessionsSessionIdRouteImport.update({
   path: '/$sessionId',
   getParentRoute: () => AdminSessionsRoute,
 } as any)
+const AdminClientsNewRoute = AdminClientsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminClientsRoute,
+} as any)
 const AdminClientsClientIdRoute = AdminClientsClientIdRouteImport.update({
   id: '/$clientId',
   path: '/$clientId',
   getParentRoute: () => AdminClientsRoute,
+} as any)
+const AdminBookingsNewRoute = AdminBookingsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AdminBookingsRoute,
 } as any)
 const AdminSessionsEditTypeIdRoute = AdminSessionsEditTypeIdRouteImport.update({
   id: '/edit/$typeId',
@@ -160,7 +172,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/bookings': typeof AdminBookingsRouteWithChildren
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/reporting': typeof AdminReportingRoute
@@ -169,7 +181,9 @@ export interface FileRoutesByFullPath {
   '/client/bookings': typeof ClientBookingsRoute
   '/client/dashboard': typeof ClientDashboardRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/admin/bookings/new': typeof AdminBookingsNewRoute
   '/admin/clients/$clientId': typeof AdminClientsClientIdRoute
+  '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
@@ -185,7 +199,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/bookings': typeof AdminBookingsRouteWithChildren
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/reporting': typeof AdminReportingRoute
@@ -194,7 +208,9 @@ export interface FileRoutesByTo {
   '/client/bookings': typeof ClientBookingsRoute
   '/client/dashboard': typeof ClientDashboardRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/admin/bookings/new': typeof AdminBookingsNewRoute
   '/admin/clients/$clientId': typeof AdminClientsClientIdRoute
+  '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
@@ -211,7 +227,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
   '/unauthorized': typeof UnauthorizedRoute
-  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/bookings': typeof AdminBookingsRouteWithChildren
   '/admin/clients': typeof AdminClientsRouteWithChildren
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/reporting': typeof AdminReportingRoute
@@ -220,7 +236,9 @@ export interface FileRoutesById {
   '/client/bookings': typeof ClientBookingsRoute
   '/client/dashboard': typeof ClientDashboardRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/admin/bookings/new': typeof AdminBookingsNewRoute
   '/admin/clients/$clientId': typeof AdminClientsClientIdRoute
+  '/admin/clients/new': typeof AdminClientsNewRoute
   '/admin/sessions/$sessionId': typeof AdminSessionsSessionIdRoute
   '/admin/sessions/new': typeof AdminSessionsNewRoute
   '/admin/sessions/edit/$typeId': typeof AdminSessionsEditTypeIdRoute
@@ -247,7 +265,9 @@ export interface FileRouteTypes {
     | '/client/bookings'
     | '/client/dashboard'
     | '/sessions/$sessionId'
+    | '/admin/bookings/new'
     | '/admin/clients/$clientId'
+    | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
     | '/admin/sessions/edit/$typeId'
@@ -272,7 +292,9 @@ export interface FileRouteTypes {
     | '/client/bookings'
     | '/client/dashboard'
     | '/sessions/$sessionId'
+    | '/admin/bookings/new'
     | '/admin/clients/$clientId'
+    | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
     | '/admin/sessions/edit/$typeId'
@@ -297,7 +319,9 @@ export interface FileRouteTypes {
     | '/client/bookings'
     | '/client/dashboard'
     | '/sessions/$sessionId'
+    | '/admin/bookings/new'
     | '/admin/clients/$clientId'
+    | '/admin/clients/new'
     | '/admin/sessions/$sessionId'
     | '/admin/sessions/new'
     | '/admin/sessions/edit/$typeId'
@@ -466,12 +490,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSessionsSessionIdRouteImport
       parentRoute: typeof AdminSessionsRoute
     }
+    '/admin/clients/new': {
+      id: '/admin/clients/new'
+      path: '/new'
+      fullPath: '/admin/clients/new'
+      preLoaderRoute: typeof AdminClientsNewRouteImport
+      parentRoute: typeof AdminClientsRoute
+    }
     '/admin/clients/$clientId': {
       id: '/admin/clients/$clientId'
       path: '/$clientId'
       fullPath: '/admin/clients/$clientId'
       preLoaderRoute: typeof AdminClientsClientIdRouteImport
       parentRoute: typeof AdminClientsRoute
+    }
+    '/admin/bookings/new': {
+      id: '/admin/bookings/new'
+      path: '/new'
+      fullPath: '/admin/bookings/new'
+      preLoaderRoute: typeof AdminBookingsNewRouteImport
+      parentRoute: typeof AdminBookingsRoute
     }
     '/admin/sessions/edit/$typeId': {
       id: '/admin/sessions/edit/$typeId'
@@ -483,12 +521,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminBookingsRouteChildren {
+  AdminBookingsNewRoute: typeof AdminBookingsNewRoute
+}
+
+const AdminBookingsRouteChildren: AdminBookingsRouteChildren = {
+  AdminBookingsNewRoute: AdminBookingsNewRoute,
+}
+
+const AdminBookingsRouteWithChildren = AdminBookingsRoute._addFileChildren(
+  AdminBookingsRouteChildren,
+)
+
 interface AdminClientsRouteChildren {
   AdminClientsClientIdRoute: typeof AdminClientsClientIdRoute
+  AdminClientsNewRoute: typeof AdminClientsNewRoute
 }
 
 const AdminClientsRouteChildren: AdminClientsRouteChildren = {
   AdminClientsClientIdRoute: AdminClientsClientIdRoute,
+  AdminClientsNewRoute: AdminClientsNewRoute,
 }
 
 const AdminClientsRouteWithChildren = AdminClientsRoute._addFileChildren(
@@ -512,7 +564,7 @@ const AdminSessionsRouteWithChildren = AdminSessionsRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
-  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminBookingsRoute: typeof AdminBookingsRouteWithChildren
   AdminClientsRoute: typeof AdminClientsRouteWithChildren
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminReportingRoute: typeof AdminReportingRoute
@@ -521,7 +573,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminBookingsRoute: AdminBookingsRoute,
+  AdminBookingsRoute: AdminBookingsRouteWithChildren,
   AdminClientsRoute: AdminClientsRouteWithChildren,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminReportingRoute: AdminReportingRoute,

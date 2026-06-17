@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
-import { generateUpcomingSessions } from "@/lib/api/sessions.functions";
-import { useState } from "react";
+import { getSiteSettingsFn, updateSiteSettingsFn } from "@/lib/api/admin.functions";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Loader2, Calendar, Settings, Plus, Trash2, ShieldAlert } from "lucide-react";
+import { Loader2, Calendar, Settings, Plus, Trash2, Globe, Clock, Mail, Save } from "lucide-react";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/admin/settings")({
@@ -15,6 +15,30 @@ function AdminSettingsPage() {
   const queryClient = useQueryClient();
   const [exceptionDate, setExceptionDate] = useState("");
   const [exceptionNotes, setExceptionNotes] = useState("");
+
+  // Site Settings state
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [gracePeriod, setGracePeriod] = useState(24);
+  const [contactEmail, setContactEmail] = useState("");
+
+  // Query: Fetch Site Settings
+  const {
+    data: siteSettings,
+    isLoading: siteSettingsLoading,
+  } = useQuery({
+    queryKey: ["admin-site-settings"],
+    queryFn: async () => {
+      return await getSiteSettingsFn();
+    },
+  });
+
+  useEffect(() => {
+    if (siteSettings) {
+      setMaintenanceMode(siteSettings.maintenance_mode);
+      setGracePeriod(siteSettings.cancellation_grace_period_hours);
+      setContactEmail(siteSettings.contact_email);
+    }
+  }, [siteSettings]);
 
   // Query: Fetch exceptions
   const {
@@ -103,13 +127,38 @@ function AdminSettingsPage() {
     },
   });
 
+  // Update site settings mutation
+  const updateSettingsMutation = useMutation({
+    mutationFn: async () => {
+      return await updateSiteSettingsFn({
+        data: {
+          maintenance_mode: maintenanceMode,
+          cancellation_grace_period_hours: gracePeriod,
+          contact_email: contactEmail,
+        },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Global settings updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin-site-settings"] });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to update settings.");
+    },
+  });
+
   const handleAddException = (e: React.FormEvent) => {
     e.preventDefault();
     if (!exceptionDate) return;
     addExceptionMutation.mutate();
   };
 
-  const isLoading = exceptionsLoading;
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateSettingsMutation.mutate();
+  };
+
+  const isLoading = exceptionsLoading || siteSettingsLoading;
 
   if (isLoading) {
     return (
@@ -139,8 +188,88 @@ function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-8 md:grid-cols-[1fr_1.5fr]">
-        {/* Left Column: Slot generation engine trigger */}
-        <div className="rounded-sm border border-border bg-surface p-6 shadow-sm space-y-6 h-fit">
+        {/* Left Column: Settings and Engine */}
+        <div className="space-y-6">
+          {/* Global Site Settings */}
+          <div className="rounded-sm border border-border bg-surface p-6 shadow-sm space-y-6">
+            <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <Globe className="h-4 w-4 text-accent" /> Global Settings
+            </h2>
+
+            <form onSubmit={handleSaveSettings} className="space-y-5 text-xs">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-semibold text-foreground mb-0.5">
+                      Maintenance Mode
+                    </label>
+                    <p className="text-[10px] text-muted-foreground">Blocks all non-admin access</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMaintenanceMode(!maintenanceMode)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
+                      maintenanceMode ? "bg-destructive" : "bg-muted"
+                    }`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        maintenanceMode ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 flex items-center gap-1.5">
+                    <Clock className="h-3 w-3" /> Cancellation Grace Period (Hours)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={gracePeriod}
+                    onChange={(e) => setGracePeriod(parseInt(e.target.value) || 0)}
+                    className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1.5">
+                    Bookings cancelled within this window before the session start time will be marked as "late cancelled".
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1 flex items-center gap-1.5">
+                    <Mail className="h-3 w-3" /> Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={updateSettingsMutation.isPending || !siteSettings}
+                className="w-full h-8 flex items-center justify-center rounded-sm bg-foreground text-background text-[10px] font-semibold uppercase tracking-wider hover:bg-foreground/90 disabled:opacity-50 gap-2"
+              >
+                {updateSettingsMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Save className="h-3 w-3" /> Save Settings
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* Slot generation engine trigger */}
+          <div className="rounded-sm border border-border bg-surface p-6 shadow-sm space-y-6 h-fit">
           <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             <Settings className="h-4 w-4 text-accent" /> Generation Engine
           </h2>
@@ -161,6 +290,7 @@ function AdminSettingsPage() {
               "Generate slots (4 Weeks)"
             )}
           </button>
+        </div>
         </div>
 
         {/* Right Column: Availability Exceptions */}

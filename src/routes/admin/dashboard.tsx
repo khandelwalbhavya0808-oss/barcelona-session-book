@@ -173,7 +173,7 @@ function AdminDashboard() {
           </Link>
         </Button>
         <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
-          <Link to="/admin/clients">
+          <Link to="/admin/clients/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <Users className="h-5 w-5 text-accent" />
             </div>
@@ -181,7 +181,7 @@ function AdminDashboard() {
           </Link>
         </Button>
         <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
-          <Link to="/admin/bookings">
+          <Link to="/admin/bookings/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <CalendarIcon className="h-5 w-5 text-accent" />
             </div>

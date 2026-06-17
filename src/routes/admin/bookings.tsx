@@ -80,7 +80,7 @@ function AdminBookingsList() {
             </Select>
           </div>
           <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Link to="/admin/bookings/new" disabled>
+            <Link to="/admin/bookings/new">
               <Plus className="mr-2 h-4 w-4" />
               Log Booking
             </Link>
