@@ -38,6 +38,7 @@ function AdminSessionsSchedulePage() {
           endTime: endDateTime,
           maxSlots: selectedTemplate.max_slots,
           locationName: selectedTemplate.location_name,
+          pricing: Number(selectedTemplate.pricing),
         }
       });
       return res;

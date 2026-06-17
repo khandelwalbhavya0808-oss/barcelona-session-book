@@ -112,6 +112,7 @@ export const scheduleSessionFn = createServerFn({ method: "POST" })
     endTime: z.string(),
     maxSlots: z.number(),
     locationName: z.string(),
+    pricing: z.number(),
   }))
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
@@ -124,6 +125,7 @@ export const scheduleSessionFn = createServerFn({ method: "POST" })
         end_time: data.endTime,
         max_slots: data.maxSlots,
         location_name: data.locationName,
+        pricing: data.pricing,
       })
       .select()
       .single();
@@ -269,7 +271,7 @@ export const createBookingFn = createServerFn({ method: "POST" })
       .from("bookings")
       .insert({
         client_id: data.clientId,
-        session_id: data.sessionId,
+        scheduled_session_id: data.sessionId,
         status: data.status,
         payment_status: "pending",
       })
