@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { BookingDetailsModal } from "@/components/admin/BookingDetailsModal";
 
 export const Route = createFileRoute("/client/bookings")({
   component: ClientBookingsPage,
@@ -34,6 +35,7 @@ function ClientBookingsPage() {
   const queryClient = useQueryClient();
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Fetch bookings
   const {
@@ -230,14 +232,13 @@ function ClientBookingsPage() {
                         €{Number(sess.session_types?.pricing).toFixed(2)}
                       </span>
                       <button
-                        onClick={() => handleCancelClick(booking)}
-                        className={`h-8 px-3 rounded-sm text-[10px] uppercase font-semibold tracking-wider transition ${
-                          isNearCancel
-                            ? "border border-destructive/30 text-destructive/80 hover:bg-destructive/5"
-                            : "border border-border text-muted-foreground hover:text-foreground hover:border-foreground"
-                        }`}
+                        onClick={() => {
+                          setSelectedBooking(booking);
+                          setIsDetailsModalOpen(true);
+                        }}
+                        className={`h-8 px-4 rounded-md text-[10px] uppercase font-semibold tracking-wider transition bg-surface border border-border hover:border-accent/40 hover:bg-accent/10 text-foreground`}
                       >
-                        Cancel Slot
+                        Manage Booking
                       </button>
                     </div>
                   </div>
@@ -374,6 +375,16 @@ function ClientBookingsPage() {
             );
           })()}
       </AlertDialog>
+
+      <BookingDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        booking={selectedBooking}
+        onCancelClick={() => {
+          setIsDetailsModalOpen(false);
+          setCancelDialogOpen(true);
+        }}
+      />
     </div>
   );
 }
