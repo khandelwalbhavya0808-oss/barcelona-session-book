@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getAdminSessionTypesFn, scheduleSessionFn } from "@/lib/api/admin.functions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, CalendarIcon } from "lucide-react";
 
@@ -14,6 +14,8 @@ function AdminSessionsSchedulePage() {
   const [templateId, setTemplateId] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [capacity, setCapacity] = useState("");
+  const [description, setDescription] = useState("");
 
   const { data: templates, isLoading: templatesLoading } = useQuery({
     queryKey: ["admin-session-types"],
@@ -21,6 +23,16 @@ function AdminSessionsSchedulePage() {
   });
 
   const activeTemplates = templates?.filter((t: any) => t.is_active) || [];
+
+  useEffect(() => {
+    if (templateId && templates) {
+      const selected = templates.find((t: any) => t.id === templateId);
+      if (selected) {
+        setCapacity(selected.capacity !== null ? String(selected.capacity) : String(selected.max_slots));
+        setDescription(selected.description || "");
+      }
+    }
+  }, [templateId, templates]);
 
   const scheduleMutation = useMutation({
     mutationFn: async () => {
@@ -36,7 +48,8 @@ function AdminSessionsSchedulePage() {
           sessionTypeId: templateId,
           startTime: startDateTime,
           endTime: endDateTime,
-          maxSlots: selectedTemplate.max_slots,
+          maxSlots: capacity ? parseInt(capacity) : selectedTemplate.max_slots,
+          description: description,
           locationName: selectedTemplate.location_name,
           pricing: Number(selectedTemplate.pricing),
         }
@@ -127,6 +140,31 @@ function AdminSessionsSchedulePage() {
                 required
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
+                className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Capacity
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+                className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
                 className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
               />
             </div>

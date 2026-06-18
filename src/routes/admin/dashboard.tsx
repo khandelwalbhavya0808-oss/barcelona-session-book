@@ -349,6 +349,11 @@ function AdminDashboard() {
                             {session.location_name} · Duration:{" "}
                             {(session.session_types as any)?.duration_minutes} min
                           </p>
+                          {session.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2 italic">
+                              {session.description}
+                            </p>
+                          )}
                         </div>
                         <div className="flex items-center gap-3">
                           <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">

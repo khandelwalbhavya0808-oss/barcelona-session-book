@@ -18,6 +18,7 @@ function AdminSessionsNewPage() {
   const [locationName, setLocationName] = useState("");
   const [pricing, setPricing] = useState("35.00");
   const [maxSlots, setMaxSlots] = useState(1);
+  const [capacity, setCapacity] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(60);
 
   // Availability rule (optional)
@@ -37,6 +38,7 @@ function AdminSessionsNewPage() {
           location_name: locationName,
           pricing: parseFloat(pricing),
           max_slots: maxSlots,
+          capacity: capacity ? parseInt(capacity) : null,
           duration_minutes: durationMinutes,
           addRule,
           dayOfWeek,
@@ -179,6 +181,20 @@ function AdminSessionsNewPage() {
                 min={1}
                 value={maxSlots}
                 onChange={(e) => setMaxSlots(parseInt(e.target.value))}
+                className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Default Capacity
+              </label>
+              <input
+                type="number"
+                min={1}
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+                placeholder="E.g. 10"
                 className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
               />
             </div>

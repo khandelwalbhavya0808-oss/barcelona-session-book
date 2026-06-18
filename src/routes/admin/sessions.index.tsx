@@ -60,6 +60,7 @@ function AdminSessionsList() {
               <TableHead>Location</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Capacity</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -67,13 +68,13 @@ function AdminSessionsList() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   Loading templates...
                 </TableCell>
               </TableRow>
             ) : displayTemplates.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   No templates found.
                 </TableCell>
               </TableRow>
@@ -93,6 +94,7 @@ function AdminSessionsList() {
                 <TableCell className="text-muted-foreground">{template.location_name}</TableCell>
                 <TableCell>{template.duration_minutes} min</TableCell>
                 <TableCell>€{template.pricing}</TableCell>
+                <TableCell>{template.capacity || "-"}</TableCell>
                 <TableCell>
                   <Badge
                     variant={template.is_active ? "default" : "secondary"}

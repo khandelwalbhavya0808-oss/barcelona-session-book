@@ -112,6 +112,13 @@ export function SessionTemplateDetailsModal({ template, isOpen, onClose }: Sessi
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Default Capacity</span>
+                <span className="font-medium flex items-center gap-1.5">
+                  <Users className="h-3 w-3 text-muted-foreground" />
+                  {template.capacity || "N/A"}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Price</span>
                 <span className="font-medium flex items-center gap-1.5">
                   <CreditCard className="h-3 w-3 text-muted-foreground" />

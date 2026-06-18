@@ -93,6 +93,7 @@ export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
         end_time,
         location_name,
         max_slots,
+        description,
         session_types (
           title,
           focus,
@@ -134,6 +135,7 @@ export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).hand
       end_time,
       location_name,
       max_slots,
+      description,
       session_types (
         title,
         duration_minutes
@@ -153,6 +155,7 @@ export const scheduleSessionFn = createServerFn({ method: "POST" })
     startTime: z.string(),
     endTime: z.string(),
     maxSlots: z.number(),
+    description: z.string().optional(),
     locationName: z.string(),
     pricing: z.number(),
   }))
@@ -166,6 +169,7 @@ export const scheduleSessionFn = createServerFn({ method: "POST" })
         start_time: data.startTime,
         end_time: data.endTime,
         max_slots: data.maxSlots,
+        description: data.description,
         location_name: data.locationName,
         pricing: data.pricing,
       })
@@ -383,6 +387,7 @@ export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
     location_name: z.string(),
     pricing: z.number(),
     max_slots: z.number(),
+    capacity: z.number().nullable().optional(),
     duration_minutes: z.number(),
     addRule: z.boolean(),
     dayOfWeek: z.number().optional(),
@@ -403,6 +408,7 @@ export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
         location_name: data.location_name,
         pricing: data.pricing,
         max_slots: data.max_slots,
+        capacity: data.capacity,
         duration_minutes: data.duration_minutes,
         is_active: true,
       })

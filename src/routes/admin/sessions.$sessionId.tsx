@@ -183,7 +183,7 @@ function AdminSessionDetailPage() {
                 {session.session_types?.title}
               </h2>
               <p className="text-xs text-muted-foreground mt-1.5">
-                {session.session_types?.description}
+                {session.description || session.session_types?.description}
               </p>
             </div>
 

@@ -146,6 +146,7 @@ function AdminBookingsList() {
               <TableHead className="w-[200px]">Date & Time</TableHead>
               <TableHead>Client</TableHead>
               <TableHead>Session</TableHead>
+              <TableHead>Description</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -154,13 +155,13 @@ function AdminBookingsList() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   Loading bookings...
                 </TableCell>
               </TableRow>
             ) : displayBookings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
                   No bookings found.
                 </TableCell>
               </TableRow>
@@ -179,6 +180,9 @@ function AdminBookingsList() {
                 </TableCell>
                 <TableCell className="font-medium">{booking.profiles?.full_name || booking.profiles?.email}</TableCell>
                 <TableCell className="text-muted-foreground">{booking.scheduled_sessions?.session_types?.title || "Custom Session"}</TableCell>
+                <TableCell className="text-muted-foreground truncate max-w-[150px]" title={booking.scheduled_sessions?.description || booking.scheduled_sessions?.session_types?.description}>
+                  {booking.scheduled_sessions?.description || booking.scheduled_sessions?.session_types?.description || "-"}
+                </TableCell>
                 <TableCell className="font-medium">
                   {booking.scheduled_sessions?.session_types?.pricing 
                     ? `$${booking.scheduled_sessions.session_types.pricing}`

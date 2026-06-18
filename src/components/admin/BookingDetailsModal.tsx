@@ -80,7 +80,7 @@ export function BookingDetailsModal({ booking, isOpen, onClose, onCancelClick }:
     mutationFn: async (newSessionId: string) => {
       const { error } = await supabase
         .from("bookings")
-        .update({ session_id: newSessionId })
+        .update({ scheduled_session_id: newSessionId })
         .eq("id", booking.id);
       
       if (error) throw error;
