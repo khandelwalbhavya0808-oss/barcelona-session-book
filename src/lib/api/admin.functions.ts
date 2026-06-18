@@ -21,63 +21,105 @@ async function verifyAdmin() {
   return { user, supabase };
 }
 
-export const getAdminDashboardStatsFn = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabase } = await verifyAdmin();
+export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
+  .validator(z.object({
+    range: z.enum(["today", "7d", "30d", "month"]).default("7d"),
+  }))
+  .handler(async ({ data: inputData }) => {
+    const { supabase } = await verifyAdmin();
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+    const range = inputData.range;
 
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
 
-  // 1. Total Clients
-  const { count: clientsCount } = await supabase
-    .from("profiles")
-    .select("*", { count: "exact", head: true })
-    .in("role", ["client", "user"]);
+    let periodStart = new Date();
+    periodStart.setHours(0, 0, 0, 0);
+    let previousPeriodStart = new Date();
+    previousPeriodStart.setHours(0, 0, 0, 0);
+    let previousPeriodEnd = new Date(periodStart);
 
-  // 2. Weekly Bookings
-  const { data: weeklyBookings } = await supabase
-    .from("bookings")
-    .select("id, status")
-    .gte("created_at", oneWeekAgo.toISOString());
+    if (range === "today") {
+      previousPeriodStart.setDate(previousPeriodStart.getDate() - 1);
+      previousPeriodEnd.setDate(previousPeriodEnd.getDate() - 1);
+      previousPeriodEnd.setHours(23, 59, 59, 999);
+    } else if (range === "7d") {
+      periodStart.setDate(periodStart.getDate() - 7);
+      previousPeriodStart.setDate(previousPeriodStart.getDate() - 14);
+    } else if (range === "30d") {
+      periodStart.setDate(periodStart.getDate() - 30);
+      previousPeriodStart.setDate(previousPeriodStart.getDate() - 60);
+    } else if (range === "month") {
+      periodStart.setDate(1);
+      previousPeriodStart.setMonth(previousPeriodStart.getMonth() - 1);
+      previousPeriodStart.setDate(1);
+      previousPeriodEnd.setDate(1);
+      previousPeriodEnd.setHours(0, 0, 0, 0);
+      previousPeriodEnd.setMilliseconds(-1);
+    }
 
-  // 3. Today's Sessions
-  const { data: todaySessions } = await supabase
-    .from("scheduled_sessions")
-    .select(`
-      id,
-      start_time,
-      end_time,
-      location_name,
-      max_slots,
-      session_types (
-        title,
-        focus,
-        duration_minutes
-      ),
-      bookings (
+    // 1. Total Clients
+    const { count: clientsCount } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .in("role", ["client", "user"]);
+      
+    const { count: previousClientsCount } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .in("role", ["client", "user"])
+      .lt("created_at", periodStart.toISOString());
+
+    // 2. Period Bookings
+    const { data: periodBookings } = await supabase
+      .from("bookings")
+      .select("id, status")
+      .gte("created_at", periodStart.toISOString());
+
+    const { data: previousBookings } = await supabase
+      .from("bookings")
+      .select("id, status")
+      .gte("created_at", previousPeriodStart.toISOString())
+      .lt("created_at", periodStart.toISOString());
+
+    // 3. Today's Sessions
+    const { data: todaySessions } = await supabase
+      .from("scheduled_sessions")
+      .select(`
         id,
-        status,
-        client_id,
-        profiles (
-          full_name,
-          email
+        start_time,
+        end_time,
+        location_name,
+        max_slots,
+        session_types (
+          title,
+          focus,
+          duration_minutes
+        ),
+        bookings (
+          id,
+          status,
+          client_id,
+          profiles (
+            full_name,
+            email
+          )
         )
-      )
-    `)
-    .gte("start_time", todayStart.toISOString())
-    .lte("start_time", todayEnd.toISOString())
-    .order("start_time", { ascending: true });
+      `)
+      .gte("start_time", todayStart.toISOString())
+      .lte("start_time", todayEnd.toISOString())
+      .order("start_time", { ascending: true });
 
-  return {
-    clientsCount: clientsCount || 0,
-    weeklyBookings: weeklyBookings || [],
-    todaySessions: todaySessions || [],
-  };
-});
+    return {
+      clientsCount: clientsCount || 0,
+      previousClientsCount: previousClientsCount || 0,
+      periodBookings: periodBookings || [],
+      previousBookings: previousBookings || [],
+      todaySessions: todaySessions || [],
+    };
+  });
 
 export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { supabase } = await verifyAdmin();
@@ -419,4 +461,47 @@ export const updateSiteSettingsFn = createServerFn({ method: "POST" })
 
     if (error) throw error;
     return result;
+  });
+
+export const getAdminRecentActivityFn = createServerFn({ method: "GET" })
+  .validator(z.object({
+    filter: z.enum(["all", "user", "admin"]).default("all")
+  }))
+  .handler(async ({ data: input }) => {
+    const { supabase } = await verifyAdmin();
+
+    const { data: bookingLogs, error } = await supabase
+      .from("booking_history_log")
+      .select(`
+        id,
+        action,
+        notes,
+        created_at,
+        profiles (
+          full_name,
+          role
+        )
+      `)
+      .order("created_at", { ascending: false })
+      .limit(40);
+
+    if (error) throw error;
+
+    let activity = (bookingLogs || []).map((log: any) => ({
+      id: log.id,
+      type: "booking",
+      action: log.action,
+      notes: log.notes,
+      created_at: log.created_at,
+      user: log.profiles?.full_name || "System",
+      role: log.profiles?.role || "system"
+    }));
+
+    if (input.filter === "user") {
+      activity = activity.filter((a) => a.role === "user" || a.role === "client");
+    } else if (input.filter === "admin") {
+      activity = activity.filter((a) => a.role === "admin");
+    }
+
+    return activity.slice(0, 15);
   });

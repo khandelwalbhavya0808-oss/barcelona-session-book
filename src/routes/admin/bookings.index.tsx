@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, MoreHorizontal, Calendar as CalendarIcon, Filter, XCircle, RefreshCcw } from "lucide-react";
+import { Plus, MoreHorizontal, Calendar as CalendarIcon, Filter, XCircle, RefreshCcw, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -199,29 +199,10 @@ function AdminBookingsList() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[180px]">
-                      <DropdownMenuItem className="cursor-pointer" onClick={(e) => { e.stopPropagation(); openModal(booking); }}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        View Session
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer">
-                        <RefreshCcw className="mr-2 h-4 w-4" />
-                        Reschedule
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                        <XCircle className="mr-2 h-4 w-4" />
-                        Cancel Booking
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); openModal(booking); }}>
+                    <span className="sr-only">View booking</span>
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
               ))

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, MoreHorizontal, Copy, Edit2, Trash2 } from "lucide-react";
+import { Plus, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,14 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { SessionTemplateDetailsModal } from "@/components/admin/SessionTemplateDetailsModal";
 
 export const Route = createFileRoute("/admin/sessions/")({
   component: AdminSessionsList,
@@ -26,10 +21,18 @@ import { useQuery } from "@tanstack/react-query";
 import { getAdminSessionTypesFn } from "@/lib/api/admin.functions";
 
 function AdminSessionsList() {
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const { data: templates, isLoading } = useQuery({
     queryKey: ["admin-session-types"],
     queryFn: async () => await getAdminSessionTypesFn(),
   });
+
+  const openModal = (template: any) => {
+    setSelectedTemplate(template);
+    setIsModalOpen(true);
+  };
 
   const displayTemplates = templates || [];
   return (
@@ -76,7 +79,11 @@ function AdminSessionsList() {
               </TableRow>
             ) : (
               displayTemplates.map((template: any) => (
-              <TableRow key={template.id} className="border-border/50 hover:bg-muted/50">
+              <TableRow 
+                key={template.id} 
+                className="border-border/50 hover:bg-muted/50 cursor-pointer"
+                onClick={() => openModal(template)}
+              >
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     <span className={`h-2 w-2 rounded-full ${template.color}`} />
@@ -99,31 +106,10 @@ function AdminSessionsList() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[160px]">
-                      <DropdownMenuItem className="cursor-pointer" asChild>
-                        <Link to={`/admin/sessions/edit/${template.id}`}>
-                          <Edit2 className="mr-2 h-4 w-4" />
-                          Edit Details
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        <Copy className="mr-2 h-4 w-4" />
-                        Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.stopPropagation(); openModal(template); }}>
+                    <span className="sr-only">View template</span>
+                    <Eye className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
               ))
@@ -131,6 +117,12 @@ function AdminSessionsList() {
           </TableBody>
         </Table>
       </div>
+
+      <SessionTemplateDetailsModal
+        template={selectedTemplate}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

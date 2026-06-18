@@ -7,9 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 interface BookingDetailsModalProps {
   booking: any;
@@ -145,6 +147,17 @@ export function BookingDetailsModal({ booking, isOpen, onClose }: BookingDetails
             Booked on {format(new Date(booking.created_at), "MMM d, yyyy 'at' h:mm a")}
           </div>
         </div>
+
+        <DialogFooter className="sm:justify-between border-t border-border/50 pt-4 flex-wrap gap-2">
+          <div className="flex gap-2 w-full sm:w-auto ml-auto">
+            <Button variant="secondary" className="flex-1 sm:flex-none">
+              Reschedule
+            </Button>
+            <Button variant="destructive" className="flex-1 sm:flex-none">
+              Cancel Booking
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

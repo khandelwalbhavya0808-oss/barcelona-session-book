@@ -17,3 +17,18 @@
   - [x] Link "Profile" to /profile
   - [x] Link "Log Out" to /logout (existing functionality)
   - [x] Mobile menu integration (direct Profile and Log Out links)
+- [x] Admin UI Overview Dashboard
+  - [x] Dynamic stats filtering with range parameters
+  - [x] Dynamic metrics and trend calculations (Clients, Bookings, Attendance)
+  - [x] Recent Activity stream card with admin/user filtering
+  - [x] Hover helpers (tooltips) for all metrics
+- [x] Admin Bookings Management
+  - [x] Fetch and display all active bookings
+  - [x] Booking Details Modal with context actions (Reschedule, Cancel Booking)
+  - [x] Eye icon action button in table rows
+- [x] Admin Sessions & Categories Management
+  - [x] Fetch and display session templates
+  - [x] Session Template Details Modal with context actions (Edit, Duplicate, Delete)
+  - [x] Eye icon action button in table rows
+- [x] Admin Clients Management
+  - [x] Fetch and display all users and clients
