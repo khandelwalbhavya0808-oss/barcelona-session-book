@@ -150,7 +150,7 @@ function AdminLayout() {
                     <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/sessions")}>
                       <Link to="/admin/sessions">
                         <Calendar />
-                        <span>Templates</span>
+                        <span>Sessions</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

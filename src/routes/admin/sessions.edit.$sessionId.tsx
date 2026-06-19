@@ -1,16 +1,20 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save, Calendar } from "lucide-react";
+import { format } from "date-fns";
 
-export const Route = createFileRoute("/admin/sessions/new")({
-  component: AdminSessionsNewPage,
+export const Route = createFileRoute("/admin/sessions/edit/$sessionId")({
+  component: AdminSessionsEditPage,
 });
 
-function AdminSessionsNewPage() {
+function AdminSessionsEditPage() {
+  const { sessionId } = Route.useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [focus, setFocus] = useState<"Strength" | "Conditioning" | "Mobility">("Strength");
@@ -22,61 +26,109 @@ function AdminSessionsNewPage() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
-  const createSessionMutation = useMutation({
-    mutationFn: async () => {
-      // 1. Insert session type (underlying category/template)
-      const { data: sessionType, error: typeError } = await supabase
-        .from("session_types")
-        .insert({
-          title,
-          description: description || null,
-          focus,
-          location_type: locationType,
-          location_name: locationName,
-          pricing: parseFloat(pricing),
-          max_slots: maxSlots,
-          duration_minutes: durationMinutes,
-          is_active: true,
-        })
-        .select()
+  // Query: Fetch scheduled session details along with its session type
+  const {
+    data: session,
+    isLoading: typeLoading,
+    error,
+  } = useQuery({
+    queryKey: ["admin-scheduled-session-details", sessionId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("scheduled_sessions")
+        .select(`
+          *,
+          session_types (
+            id,
+            title,
+            description,
+            focus,
+            location_type,
+            location_name,
+            pricing,
+            duration_minutes
+          )
+        `)
+        .eq("id", sessionId)
         .single();
 
-      if (typeError) throw typeError;
+      if (error) throw error;
+      return data as any;
+    },
+  });
 
-      // 2. Combine date & time to construct start/end timestamps
+  useEffect(() => {
+    if (session) {
+      const type = session.session_types;
+      setTitle(type.title);
+      setDescription(session.description || type.description || "");
+      setFocus(type.focus);
+      setLocationType(type.location_type);
+      setLocationName(session.location_name || type.location_name);
+      setPricing(Number(session.pricing || type.pricing).toFixed(2));
+      setMaxSlots(session.max_slots || type.max_slots);
+      setDurationMinutes(type.duration_minutes);
+
+      // Parse date & time from start_time
+      if (session.start_time) {
+        const dt = new Date(session.start_time);
+        setDate(format(dt, "yyyy-MM-dd"));
+        setTime(format(dt, "HH:mm"));
+      }
+    }
+  }, [session]);
+
+  // Mutation: Update scheduled session and session type
+  const updateSessionMutation = useMutation({
+    mutationFn: async () => {
+      if (!session) throw new Error("No session loaded");
+
+      // 1. Combine date & time to construct start/end timestamps
       const startDateTime = new Date(`${date}T${time}:00`);
       const endDateTime = new Date(startDateTime.getTime() + durationMinutes * 60000);
 
-      // 3. Insert scheduled session instance referencing the session type
-      const { data: scheduledSession, error: sessionError } = await supabase
+      // 2. Update scheduled session instance
+      const { error: sessionError } = await supabase
         .from("scheduled_sessions")
-        .insert({
-          session_type_id: sessionType.id,
+        .update({
           start_time: startDateTime.toISOString(),
           end_time: endDateTime.toISOString(),
           max_slots: maxSlots,
           pricing: parseFloat(pricing),
           location_name: locationName,
-          status: "active",
           description: description || null,
         })
-        .select()
-        .single();
+        .eq("id", sessionId);
 
-      if (sessionError) {
-        // Rollback session type if scheduled session insertion failed
-        await supabase.from("session_types").delete().eq("id", sessionType.id);
-        throw sessionError;
+      if (sessionError) throw sessionError;
+
+      // 3. Update underlying session type
+      if (session.session_types?.id) {
+        const { error: typeError } = await supabase
+          .from("session_types")
+          .update({
+            title,
+            description: description || null,
+            focus,
+            location_type: locationType,
+            location_name: locationName,
+            pricing: parseFloat(pricing),
+            max_slots: maxSlots,
+            duration_minutes: durationMinutes,
+          })
+          .eq("id", session.session_types.id);
+
+        if (typeError) throw typeError;
       }
-
-      return scheduledSession;
     },
     onSuccess: () => {
-      toast.success("Workout session created and scheduled successfully!");
+      toast.success("Workout session updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["admin-scheduled-sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-scheduled-session-details", sessionId] });
       router.navigate({ to: "/admin/sessions" });
     },
     onError: (err: any) => {
-      toast.error(err.message || "Failed to create session.");
+      toast.error(err.message || "Failed to update session.");
     },
   });
 
@@ -86,8 +138,27 @@ function AdminSessionsNewPage() {
       toast.error("Please fill in all required fields.");
       return;
     }
-    createSessionMutation.mutate();
+    updateSessionMutation.mutate();
   };
+
+  if (typeLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+        <h1 className="text-xl font-bold font-display">Session Not Found</h1>
+        <Link to="/admin/sessions" className="mt-4 text-accent hover:underline">
+          Back to Sessions
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
@@ -101,10 +172,10 @@ function AdminSessionsNewPage() {
       <div className="rounded-sm border border-border bg-surface p-8 shadow-lg space-y-8">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-            Create Workout Session
+            Edit Workout Session
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            Configure and schedule a workout slot directly on the training calendar.
+            Modify the scheduling and details for this workout session.
           </p>
         </div>
 
@@ -120,7 +191,6 @@ function AdminSessionsNewPage() {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="E.g. Morning Strength Conditioning"
                 className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
               />
             </div>
@@ -132,7 +202,6 @@ function AdminSessionsNewPage() {
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Outline details, level of focus, equipment needed..."
                 rows={3}
                 className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
               />
@@ -217,7 +286,6 @@ function AdminSessionsNewPage() {
                 required
                 value={locationName}
                 onChange={(e) => setLocationName(e.target.value)}
-                placeholder="E.g. Barceloneta Beach, Eixample Studio"
                 className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
               />
             </div>
@@ -253,14 +321,14 @@ function AdminSessionsNewPage() {
 
           <button
             type="submit"
-            disabled={createSessionMutation.isPending}
+            disabled={updateSessionMutation.isPending}
             className="flex w-full h-11 items-center justify-center rounded-sm bg-accent text-sm font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 disabled:opacity-50 gap-2 cursor-pointer"
           >
-            {createSessionMutation.isPending ? (
+            {updateSessionMutation.isPending ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <>
-                <Save className="h-4 w-4" /> Save and Schedule Session
+                <Save className="h-4 w-4" /> Save Changes
               </>
             )}
           </button>
