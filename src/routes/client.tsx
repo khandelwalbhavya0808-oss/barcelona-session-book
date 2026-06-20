@@ -218,7 +218,14 @@ function ClientLayout() {
     if (!loading) {
       if (!user) {
         toast.error("Please sign in to access the client area.");
-        router.navigate({ to: "/login" });
+        const searchStr = new URLSearchParams(location.search as any).toString();
+        const fullRedirect = location.pathname + (searchStr ? "?" + searchStr : "");
+        router.navigate({
+          to: "/login",
+          search: {
+            redirect: fullRedirect,
+          },
+        });
       } else if (profile) {
         if (profile.status === "banned" || profile.status === "rejected") {
           toast.error("Access denied. Your account is restricted.");

@@ -35,7 +35,7 @@ import {
   startOfDay,
 } from "date-fns";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -54,8 +54,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { z } from "zod";
+
+const bookSearchSchema = z.object({
+  sessionId: z.string().optional(),
+});
 
 export const Route = createFileRoute("/client/book")({
+  validateSearch: (search) => bookSearchSchema.parse(search),
   component: ClientBookingPage,
 });
 
@@ -63,6 +69,7 @@ function ClientBookingPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { sessionId: querySessionId } = Route.useSearch();
 
   // Navigation states
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
@@ -150,6 +157,23 @@ function ClientBookingPage() {
   });
 
   const isLoading = authLoading || sessionsLoading || clientBookingsLoading;
+
+  // Auto-select and trigger confirmation modal if sessionId is passed in query
+  useEffect(() => {
+    if (querySessionId && sessions && sessions.length > 0 && !selectedSession) {
+      const matchingSession = sessions.find((s) => s.id === querySessionId);
+      if (matchingSession) {
+        setSelectedSession(matchingSession);
+        setIsDrawerOpen(true);
+
+        const sessionDate = new Date(matchingSession.start_time);
+        setSelectedDate(sessionDate);
+        setCurrentMonth(sessionDate);
+
+        // No auto-trigger confirmation modal anymore as the drawer handles confirmation directly
+      }
+    }
+  }, [querySessionId, sessions, selectedSession]);
 
   // Book session mutation
   const bookMutation = useMutation({
@@ -289,24 +313,22 @@ function ClientBookingPage() {
     setIsDrawerOpen(true);
   };
 
-  const handleActionClick = (type: "book" | "waitlist") => {
-    setActionType(type);
-    setConfirmOpen(true);
-  };
-
   const handleConfirmAction = () => {
-    setConfirmOpen(false);
     if (!selectedSession) return;
 
-    if (actionType === "book") {
-      bookMutation.mutate(selectedSession.id);
-    } else {
+    const confirmedBookings =
+      selectedSession.bookings?.filter((b: any) => b.status === "confirmed") || [];
+    const isFull = confirmedBookings.length >= (selectedSession.max_slots || 0);
+
+    if (isFull) {
       const activeWaitlist =
         selectedSession.waitlists?.filter((w: any) => w.status === "waiting") || [];
       waitlistMutation.mutate({
         sessId: selectedSession.id,
         currentWaitlistCount: activeWaitlist.length,
       });
+    } else {
+      bookMutation.mutate(selectedSession.id);
     }
   };
 
@@ -319,6 +341,12 @@ function ClientBookingPage() {
   const hasBooked = user ? activeBookings.some((b: any) => b.client_id === user.id) : false;
   const hasWaitlisted = user ? activeWaitlist.some((w: any) => w.client_id === user.id) : false;
   const conflictSessionTitle = selectedSession ? checkOverlap(selectedSession) : null;
+  const myBookingsCount =
+    user && selectedSession
+      ? selectedSession.bookings?.filter(
+          (b: any) => b.client_id === user.id && b.status === "confirmed",
+        ).length || 0
+      : 0;
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in duration-500">
@@ -684,207 +712,139 @@ function ClientBookingPage() {
         {selectedSession && (
           <SheetContent
             side="right"
-            className="bg-surface border-border flex flex-col justify-between h-full w-full sm:max-w-md"
+            className="bg-surface border-border flex flex-col justify-between h-full w-full sm:max-w-md text-foreground"
           >
-            <div className="space-y-6">
-              <SheetHeader className="text-left border-b border-border/40 pb-5">
-                <span className="inline-flex self-start items-center gap-1.5 rounded-sm bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent uppercase tracking-wider mb-2">
-                  {selectedSession.session_types?.focus}
-                </span>
-                <SheetTitle className="font-display text-2xl font-bold tracking-tight text-foreground">
-                  {selectedSession.session_types?.title}
-                </SheetTitle>
-                <SheetDescription className="text-muted-foreground text-sm mt-2">
-                  {selectedSession.session_types?.description ||
-                    "No workout description provided for this session."}
-                </SheetDescription>
-              </SheetHeader>
-
-              {/* Logistics information */}
-              <div className="space-y-4 text-sm pt-2">
-                <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
-                  <CalendarIcon className="h-5 w-5 text-accent shrink-0" />
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Date & Time
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {format(new Date(selectedSession.start_time), "EEEE, MMM d, yyyy")}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {format(new Date(selectedSession.start_time), "HH:mm")} -{" "}
-                      {format(new Date(selectedSession.end_time), "HH:mm")} (
-                      {selectedSession.session_types?.duration_minutes} min)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
-                  <MapPin className="h-5 w-5 text-accent shrink-0" />
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Location
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {selectedSession.session_types?.location_type}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {selectedSession.location_name}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-accent shrink-0" />
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Pricing
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      €{Number(selectedSession.pricing).toFixed(2)}
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      Paid on-premises (in-person)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
-                  <Clock className="h-5 w-5 text-accent shrink-0" />
-                  <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Availability
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {selectedSession.max_slots - activeBookings.length} of{" "}
-                      {selectedSession.max_slots} slots available
-                    </span>
-                    <span className="block text-xs text-muted-foreground">
-                      {activeWaitlist.length} clients currently in waitlist
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Conflict alerts */}
-              {conflictSessionTitle && !hasBooked && !hasWaitlisted && (
-                <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 p-3.5 text-xs text-amber-300 leading-normal">
-                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
-                  <div>
-                    <span className="font-bold">Schedule Overlap Alert</span>
-                    <p className="mt-0.5 opacity-90">
-                      You already have a session booked for <strong>{conflictSessionTitle}</strong>{" "}
-                      that overlaps with this slot's time.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Booking State CTA Button */}
-            <div className="border-t border-border/40 pt-5">
-              {hasBooked ? (
-                <div className="flex items-center gap-2.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4 text-xs text-emerald-400">
-                  <CheckCircle2 className="h-5 w-5 shrink-0" />
-                  <div>
-                    <span className="font-bold">You are booked for this workout!</span>
-                    <p className="mt-0.5 opacity-80">
-                      Check bookings history in your dashboard settings.
-                    </p>
-                  </div>
-                </div>
-              ) : hasWaitlisted ? (
-                <div className="flex items-center gap-2.5 rounded-lg border border-muted-foreground/20 bg-muted/20 p-4 text-xs text-foreground">
-                  <Clock className="h-5 w-5 shrink-0 text-accent animate-pulse" />
-                  <div>
-                    <span className="font-bold">You are on the waitlist</span>
-                    <p className="mt-0.5 text-muted-foreground">
-                      We'll auto-register you if an active client cancels. Current position:{" "}
-                      <strong className="text-accent">
-                        #{activeWaitlist.findIndex((w: any) => w.client_id === user?.id) + 1}
-                      </strong>
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <button
-                    onClick={() => handleActionClick(isFull ? "waitlist" : "book")}
-                    disabled={bookMutation.isPending || waitlistMutation.isPending}
-                    className="flex w-full h-11 items-center justify-center rounded-lg bg-accent text-accent-foreground text-xs font-semibold uppercase tracking-wider hover:opacity-90 disabled:opacity-50 transition-opacity"
-                  >
-                    {bookMutation.isPending || waitlistMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : isFull ? (
-                      "Join Waitlist Queue"
-                    ) : (
-                      "Confirm & Book Session"
-                    )}
-                  </button>
-                  <p className="text-[10px] text-center text-muted-foreground">
-                    {isFull
-                      ? "This session is full. Join waitlist position to secure booking on cancel."
-                      : "Booking is free. €" +
-                        Number(selectedSession.pricing).toFixed(2) +
-                        " is due in person at the gym premises."}
+            <div className="flex flex-col justify-between h-full bg-surface">
+              <div className="space-y-6">
+                {/* Header */}
+                <div>
+                  <h2 className="font-display text-2xl font-black italic tracking-wide text-foreground uppercase">
+                    CONFIRM YOUR SESSION
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-1 font-medium">
+                    Ready to level up? Review the details below to secure your spot.
                   </p>
                 </div>
-              )}
+
+                {/* Already booked helper notice */}
+                {myBookingsCount > 0 && (
+                  <div className="text-xs text-emerald-400 bg-emerald-500/5 border border-emerald-500/20 p-3 rounded-xl flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                    <span>
+                      You have booked {myBookingsCount} slot{myBookingsCount > 1 ? "s" : ""} for
+                      this session. You can book another below.
+                    </span>
+                  </div>
+                )}
+
+                {/* Card 1: Session Details Card */}
+                <div className="bg-background border border-border p-4 rounded-xl space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-accent-foreground font-black text-lg shrink-0">
+                      {selectedSession.session_types?.focus?.[0] || "S"}
+                    </div>
+                    <div>
+                      <h3 className="font-display font-bold text-sm text-foreground uppercase tracking-wide leading-tight">
+                        {selectedSession.session_types?.title}
+                      </h3>
+                      <span className="text-[11px] uppercase tracking-wider text-accent font-bold mt-0.5 block">
+                        {selectedSession.session_types?.focus}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 pt-2 border-t border-border/40 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-accent shrink-0" />
+                      <span className="font-semibold text-foreground">
+                        {format(new Date(selectedSession.start_time), "MMM d, yyyy")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-accent shrink-0" />
+                      <span className="font-semibold text-foreground">
+                        {format(new Date(selectedSession.start_time), "HH:mm")}
+                      </span>
+                      <span>({selectedSession.session_types?.duration_minutes} min)</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-accent shrink-0" />
+                      <span className="font-semibold text-foreground truncate">
+                        {selectedSession.location_name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card 2: Investment/Pricing Card */}
+                <div className="bg-background border border-border p-4 rounded-xl flex items-center justify-between">
+                  <div>
+                    <span className="block text-[10px] font-bold uppercase tracking-wider text-accent">
+                      TOTAL INVESTMENT
+                    </span>
+                    <span className="text-xs text-muted-foreground italic mt-0.5 block">
+                      Pay in-person at arrival
+                    </span>
+                  </div>
+                  <span className="font-display text-2xl font-black italic tracking-wide text-foreground">
+                    €{Number(selectedSession.pricing).toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Card 3: Cancellation policy info */}
+                <div className="bg-background/50 border border-border p-4 rounded-xl flex items-start gap-2.5 text-xs text-muted-foreground leading-normal">
+                  <Info className="h-4 w-4 text-accent shrink-0 mt-0.5" />
+                  <p>
+                    By confirming, you agree to our 24-hour cancellation policy. Sessions cancelled
+                    within 24 hours may still be charged.
+                  </p>
+                </div>
+
+                {/* Conflict alerts */}
+                {conflictSessionTitle && (
+                  <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs text-amber-300 leading-normal">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-amber-400" />
+                    <div>
+                      <span className="font-bold">Schedule Overlap Warning</span>
+                      <p className="mt-0.5 opacity-90">
+                        You already have a booked session (<strong>{conflictSessionTitle}</strong>)
+                        that overlaps with this slot's time.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="border-t border-border/40 pt-5 mt-6 space-y-4">
+                <button
+                  onClick={handleConfirmAction}
+                  disabled={bookMutation.isPending || waitlistMutation.isPending}
+                  className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg font-bold text-sm uppercase tracking-wider transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {bookMutation.isPending || waitlistMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-4 w-4" />
+                      {isFull ? "Confirm Waitlist" : "Confirm Booking"}
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => setIsDrawerOpen(false)}
+                  className="w-full text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors py-2 cursor-pointer"
+                >
+                  BACK TO SCHEDULE
+                </button>
+              </div>
             </div>
           </SheetContent>
         )}
       </Sheet>
-
-      {/* Confirmation Dialog */}
-      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        {selectedSession && (
-          <AlertDialogContent className="bg-surface border border-border">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-display text-xl font-bold">
-                {actionType === "book" ? "Confirm Workout Slot" : "Join Workout Waitlist"}
-              </AlertDialogTitle>
-              <AlertDialogDescription className="text-muted-foreground text-sm space-y-2">
-                {actionType === "book" ? (
-                  <>
-                    <p>
-                      Are you sure you want to book{" "}
-                      <strong>{selectedSession.session_types?.title}</strong>?
-                    </p>
-                    <p>
-                      <strong>Date:</strong>{" "}
-                      {format(new Date(selectedSession.start_time), "EEEE, MMMM d, yyyy")}
-                    </p>
-                    <p>
-                      <strong>Time:</strong> {format(new Date(selectedSession.start_time), "HH:mm")}
-                    </p>
-                    <p className="pt-2 text-foreground font-semibold">
-                      You will pay €{Number(selectedSession.pricing).toFixed(2)} in person at the
-                      venue.
-                    </p>
-                  </>
-                ) : (
-                  <p>
-                    This session is currently full. Join the waitlist at position #
-                    {activeWaitlist.length + 1}. You'll be automatically booked if a slot is
-                    released.
-                  </p>
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="bg-transparent border border-border text-foreground hover:bg-muted/10 cursor-pointer">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleConfirmAction}
-                className="bg-accent text-accent-foreground hover:opacity-90 cursor-pointer"
-              >
-                Confirm
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        )}
-      </AlertDialog>
     </div>
   );
 }

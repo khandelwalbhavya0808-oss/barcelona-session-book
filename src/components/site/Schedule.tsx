@@ -175,8 +175,8 @@ function Row({ session }: { session: SessionWithDetails }) {
       </div>
 
       <Link
-        to="/sessions/$sessionId"
-        params={{ sessionId: session.id }}
+        to="/client/book"
+        search={{ sessionId: session.id }}
         className={`inline-flex h-9 items-center justify-center rounded-sm px-5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-all duration-300 ${
           isOpen
             ? "bg-accent text-accent-foreground hover:bg-accent/90"
@@ -223,8 +223,8 @@ function CalendarCard({ session }: { session: SessionWithDetails }) {
         </span>
 
         <Link
-          to="/sessions/$sessionId"
-          params={{ sessionId: session.id }}
+          to="/client/book"
+          search={{ sessionId: session.id }}
           className={`inline-flex h-6 items-center justify-center rounded-sm px-2 text-[9px] font-bold uppercase tracking-wider transition-all duration-300 ${
             isOpen
               ? "bg-accent text-accent-foreground hover:bg-accent/90"

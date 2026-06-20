@@ -5,12 +5,20 @@ import { logUserLogin } from "@/lib/api/auth.functions";
 import { toast } from "sonner";
 import { Loader2, ArrowRight } from "lucide-react";
 
+import { z } from "zod";
+
+const loginSearchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/login")({
+  validateSearch: (search) => loginSearchSchema.parse(search),
   component: LoginPage,
 });
 
 function LoginPage() {
   const router = useRouter();
+  const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,11 +61,17 @@ function LoginPage() {
         if (profileError) {
           console.error("Error reading profile role:", profileError);
           toast.success("Signed in successfully!");
-          router.navigate({ to: "/dashboard" });
+          if (redirect) {
+            router.navigate({ to: redirect as any });
+          } else {
+            router.navigate({ to: "/dashboard" });
+          }
         } else {
           toast.success("Welcome back!");
           if (profile.role === "admin") {
             router.navigate({ to: "/admin/dashboard" });
+          } else if (redirect) {
+            router.navigate({ to: redirect as any });
           } else {
             router.navigate({ to: "/dashboard" });
           }
