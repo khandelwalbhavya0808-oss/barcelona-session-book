@@ -343,6 +343,32 @@ function ClientDashboard() {
               <BellRing className="h-5 w-5 text-accent" /> Alerts & Notices
             </h2>
             <div className="space-y-4">
+              {upcomingBookings.map((b) => (
+                <div
+                  key={b.id}
+                  className="text-xs border-b border-border/40 pb-3 last:border-0 last:pb-0 bg-accent/5 p-2.5 rounded border border-accent/10"
+                >
+                  <span className="font-semibold text-accent flex items-center gap-1.5 mb-1">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" /> Dynamic Notice: Upcoming
+                    Workout
+                  </span>
+                  <p className="text-muted-foreground leading-relaxed font-medium">
+                    You have booked <strong>{b.scheduled_sessions?.session_types?.title}</strong> on{" "}
+                    <strong>
+                      {format(new Date(b.scheduled_sessions?.start_time), "EEEE, MMM d 'at' HH:mm")}
+                    </strong>{" "}
+                    at {b.scheduled_sessions?.location_name}.
+                  </p>
+                  {b.payment_status === "pending" && (
+                    <p className="text-[10px] text-accent/90 mt-1 font-semibold flex items-center gap-1">
+                      <Wallet className="h-3 w-3 shrink-0" /> In-person payment of €
+                      {Number(b.scheduled_sessions?.session_types?.pricing || 0).toFixed(2)} is
+                      pending.
+                    </p>
+                  )}
+                </div>
+              ))}
+
               <div className="text-xs border-b border-border/40 pb-3 last:border-0 last:pb-0">
                 <span className="font-semibold text-accent block mb-1">
                   📍 Outdoor Training Locations
