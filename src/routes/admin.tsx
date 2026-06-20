@@ -109,7 +109,10 @@ function AdminLayout() {
         {/* Sidebar */}
         <Sidebar variant="sidebar" collapsible="icon">
           <SidebarHeader className="border-b border-sidebar-border h-16 flex items-center justify-center px-4 py-0">
-            <Link to="/" className="flex items-center gap-2 text-sm font-semibold w-full overflow-hidden">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-sm font-semibold w-full overflow-hidden"
+            >
               <span className="h-2 w-2 shrink-0 rounded-full bg-accent" />
               <span className="truncate group-data-[collapsible=icon]:hidden">Alex Moreno</span>
               <span className="text-accent uppercase tracking-wider font-semibold text-[10px] bg-accent/10 px-2 py-0.5 rounded-sm flex items-center gap-1 shrink-0 group-data-[collapsible=icon]:hidden">
@@ -131,7 +134,10 @@ function AdminLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/bookings")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname.startsWith("/admin/bookings")}
+                    >
                       <Link to="/admin/bookings">
                         <Calendar />
                         <span>Bookings</span>
@@ -139,7 +145,10 @@ function AdminLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/clients")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname.startsWith("/admin/clients")}
+                    >
                       <Link to="/admin/clients">
                         <Users />
                         <span>Clients</span>
@@ -147,7 +156,10 @@ function AdminLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/sessions")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname.startsWith("/admin/sessions")}
+                    >
                       <Link to="/admin/sessions">
                         <Calendar />
                         <span>Sessions</span>
@@ -155,7 +167,10 @@ function AdminLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/reporting")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname.startsWith("/admin/reporting")}
+                    >
                       <Link to="/admin/reporting">
                         <BarChart3 />
                         <span>Reporting</span>
@@ -163,7 +178,10 @@ function AdminLayout() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname.startsWith("/admin/settings")}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={location.pathname.startsWith("/admin/settings")}
+                    >
                       <Link to="/admin/settings">
                         <Settings />
                         <span>Settings</span>
@@ -189,10 +207,17 @@ function AdminLayout() {
                       {idx > 0 && <BreadcrumbSeparator />}
                       <BreadcrumbItem>
                         {bc.isLast ? (
-                          <BreadcrumbPage className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{bc.label}</BreadcrumbPage>
+                          <BreadcrumbPage className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                            {bc.label}
+                          </BreadcrumbPage>
                         ) : (
                           <BreadcrumbLink asChild>
-                            <Link to={bc.href} className="text-xs uppercase tracking-wider text-muted-foreground/70 hover:text-foreground transition-colors">{bc.label}</Link>
+                            <Link
+                              to={bc.href}
+                              className="text-xs uppercase tracking-wider text-muted-foreground/70 hover:text-foreground transition-colors"
+                            >
+                              {bc.label}
+                            </Link>
                           </BreadcrumbLink>
                         )}
                       </BreadcrumbItem>
@@ -213,19 +238,31 @@ function AdminLayout() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-80 bg-surface border-border p-0">
                   <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Notifications</span>
-                    <span className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-sm font-semibold">2 New</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Notifications
+                    </span>
+                    <span className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-sm font-semibold">
+                      2 New
+                    </span>
                   </div>
                   <div className="flex flex-col max-h-[300px] overflow-auto">
                     <div className="px-4 py-3 border-b border-border/50 hover:bg-muted/50 cursor-pointer transition-colors">
                       <p className="text-sm font-medium">New Client Registered</p>
-                      <p className="text-xs text-muted-foreground mt-1">David Smith just created an account.</p>
-                      <span className="text-[10px] text-muted-foreground/70 mt-2 block">2 mins ago</span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        David Smith just created an account.
+                      </p>
+                      <span className="text-[10px] text-muted-foreground/70 mt-2 block">
+                        2 mins ago
+                      </span>
                     </div>
                     <div className="px-4 py-3 border-b border-border/50 hover:bg-muted/50 cursor-pointer transition-colors">
                       <p className="text-sm font-medium">Booking Cancelled</p>
-                      <p className="text-xs text-muted-foreground mt-1">Sarah Johnson cancelled her 17:00 session.</p>
-                      <span className="text-[10px] text-muted-foreground/70 mt-2 block">1 hour ago</span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Sarah Johnson cancelled her 17:00 session.
+                      </p>
+                      <span className="text-[10px] text-muted-foreground/70 mt-2 block">
+                        1 hour ago
+                      </span>
                     </div>
                   </div>
                   <div className="p-2">
@@ -265,6 +302,16 @@ function AdminLayout() {
                     >
                       <User className="h-3.5 w-3.5 text-accent" />
                       Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-border" />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/client/dashboard"
+                      className="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <LayoutDashboard className="h-3.5 w-3.5 text-accent" />
+                      Client Portal
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-border" />

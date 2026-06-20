@@ -1,6 +1,10 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { createBookingFn, getAdminClientsFn, getAdminUpcomingSessionsFn } from "@/lib/api/admin.functions";
+import {
+  createBookingFn,
+  getAdminClientsFn,
+  getAdminUpcomingSessionsFn,
+} from "@/lib/api/admin.functions";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
@@ -81,7 +85,9 @@ function AdminBookingsNewPage() {
                 Select Client *
               </label>
               {clientsLoading ? (
-                <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin"/> Loading clients...</div>
+                <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Loading clients...
+                </div>
               ) : (
                 <select
                   required
@@ -89,7 +95,9 @@ function AdminBookingsNewPage() {
                   onChange={(e) => setClientId(e.target.value)}
                   className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
                 >
-                  <option value="" disabled>-- Choose a Client --</option>
+                  <option value="" disabled>
+                    -- Choose a Client --
+                  </option>
                   {clients?.map((client: any) => (
                     <option key={client.id} value={client.id}>
                       {client.full_name || client.email}
@@ -104,7 +112,9 @@ function AdminBookingsNewPage() {
                 Select Session *
               </label>
               {sessionsLoading ? (
-                <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-2"><Loader2 className="h-3 w-3 animate-spin"/> Loading sessions...</div>
+                <div className="mt-1.5 text-xs text-muted-foreground flex items-center gap-2">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Loading sessions...
+                </div>
               ) : (
                 <select
                   required
@@ -112,10 +122,13 @@ function AdminBookingsNewPage() {
                   onChange={(e) => setSessionId(e.target.value)}
                   className="mt-1.5 block w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
                 >
-                  <option value="" disabled>-- Choose a Session --</option>
+                  <option value="" disabled>
+                    -- Choose a Session --
+                  </option>
                   {upcomingSessions?.map((session: any) => (
                     <option key={session.id} value={session.id}>
-                      {format(new Date(session.start_time), "MMM d, HH:mm")} - {session.session_types?.title} ({session.location_name})
+                      {format(new Date(session.start_time), "MMM d, HH:mm")} -{" "}
+                      {session.session_types?.title} ({session.location_name})
                     </option>
                   ))}
                 </select>

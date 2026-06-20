@@ -87,72 +87,77 @@ function AdminClientsList() {
               </TableRow>
             ) : (
               displayClients.map((client: any) => (
-              <TableRow key={client.id} className="border-border/50 hover:bg-muted/50">
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={client.avatar_url || ""} alt={client.full_name || client.email} />
-                      <AvatarFallback className="bg-muted text-[10px]">
-                        {getInitials(client.full_name || "Unknown")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="text-sm">{client.full_name || "Unknown User"}</span>
-                      <span className="text-xs text-muted-foreground">{client.email}</span>
+                <TableRow key={client.id} className="border-border/50 hover:bg-muted/50">
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage
+                          src={client.avatar_url || ""}
+                          alt={client.full_name || client.email}
+                        />
+                        <AvatarFallback className="bg-muted text-[10px]">
+                          {getInitials(client.full_name || "Unknown")}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{client.full_name || "Unknown User"}</span>
+                        <span className="text-xs text-muted-foreground">{client.email}</span>
+                      </div>
                     </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                    {client.role}
-                  </span>
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm">{format(new Date(client.created_at), "MMM d, yyyy")}</TableCell>
-                <TableCell className="text-center font-medium">N/A</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={client.status === "active" ? "default" : "secondary"}
-                    className={
-                      client.status === "active"
-                        ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20"
-                        : "bg-muted text-muted-foreground border-border"
-                    }
-                  >
-                    {client.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-[180px]">
-                      <DropdownMenuItem className="cursor-pointer" asChild>
-                        <Link to={`/admin/clients/${client.id}`}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        <Mail className="mr-2 h-4 w-4" />
-                        Message Client
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer">
-                        <ShieldAlert className="mr-2 h-4 w-4" />
-                        Reset Password
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Remove Account
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                      {client.role}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {format(new Date(client.created_at), "MMM d, yyyy")}
+                  </TableCell>
+                  <TableCell className="text-center font-medium">N/A</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={client.status === "active" ? "default" : "secondary"}
+                      className={
+                        client.status === "active"
+                          ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border-emerald-500/20"
+                          : "bg-muted text-muted-foreground border-border"
+                      }
+                    >
+                      {client.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[180px]">
+                        <DropdownMenuItem className="cursor-pointer" asChild>
+                          <Link to={`/admin/clients/${client.id}`}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Profile
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer">
+                          <Mail className="mr-2 h-4 w-4" />
+                          Message Client
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="cursor-pointer">
+                          <ShieldAlert className="mr-2 h-4 w-4" />
+                          Reset Password
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove Account
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
               ))
             )}
           </TableBody>

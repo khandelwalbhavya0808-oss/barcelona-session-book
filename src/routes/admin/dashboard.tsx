@@ -1,7 +1,11 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAdminDashboardStatsFn, updateBookingStatusFn, getAdminRecentActivityFn } from "@/lib/api/admin.functions";
+import {
+  getAdminDashboardStatsFn,
+  updateBookingStatusFn,
+  getAdminRecentActivityFn,
+} from "@/lib/api/admin.functions";
 import { useState } from "react";
 import {
   Users,
@@ -23,12 +27,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Select,
   SelectContent,
@@ -68,7 +67,7 @@ function AdminDashboard() {
 
   const clientsCount = dashboardData?.clientsCount || 0;
   const previousClientsCount = dashboardData?.previousClientsCount || 0;
-  
+
   const periodBookings = dashboardData?.periodBookings || [];
   const previousBookings = dashboardData?.previousBookings || [];
   const todaySessions = dashboardData?.todaySessions || [];
@@ -135,15 +134,16 @@ function AdminDashboard() {
     if (value > 0) {
       return (
         <div className="flex items-center mt-1 text-xs text-emerald-500 font-medium">
-          <ArrowUpRight className="mr-1 h-3 w-3" />
-          +{value}{isRatio ? "" : "%"} from last period
+          <ArrowUpRight className="mr-1 h-3 w-3" />+{value}
+          {isRatio ? "" : "%"} from last period
         </div>
       );
     } else if (value < 0) {
       return (
         <div className="flex items-center mt-1 text-xs text-rose-500 font-medium">
           <ArrowDownRight className="mr-1 h-3 w-3" />
-          {value}{isRatio ? "" : "%"} from last period
+          {value}
+          {isRatio ? "" : "%"} from last period
         </div>
       );
     }
@@ -164,7 +164,7 @@ function AdminDashboard() {
             Monitor your business performance and daily schedule.
           </p>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 bg-surface border border-border rounded-md px-3 h-10">
             <Filter className="h-4 w-4 text-muted-foreground" />
@@ -195,7 +195,9 @@ function AdminDashboard() {
                     <Info className="h-3.5 w-3.5 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-xs text-xs">Total registered users and clients up to the end of the selected period.</p>
+                    <p className="max-w-xs text-xs">
+                      Total registered users and clients up to the end of the selected period.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -218,7 +220,9 @@ function AdminDashboard() {
                     <Info className="h-3.5 w-3.5 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-xs text-xs">Total bookings made during the selected period.</p>
+                    <p className="max-w-xs text-xs">
+                      Total bookings made during the selected period.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -241,7 +245,9 @@ function AdminDashboard() {
                     <Info className="h-3.5 w-3.5 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-xs text-xs">Percentage of bookings marked as attended vs no-shows for the period.</p>
+                    <p className="max-w-xs text-xs">
+                      Percentage of bookings marked as attended vs no-shows for the period.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -257,7 +263,11 @@ function AdminDashboard() {
 
       {/* Contextual Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-5">
-        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+        <Button
+          variant="outline"
+          className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors"
+          asChild
+        >
           <Link to="/admin/sessions/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <Plus className="h-5 w-5 text-accent" />
@@ -265,7 +275,11 @@ function AdminDashboard() {
             <span className="font-semibold uppercase tracking-wider text-xs">Create Session</span>
           </Link>
         </Button>
-        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+        <Button
+          variant="outline"
+          className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors"
+          asChild
+        >
           <Link to="/admin/sessions">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <CalendarIcon className="h-5 w-5 text-accent" />
@@ -273,7 +287,11 @@ function AdminDashboard() {
             <span className="font-semibold uppercase tracking-wider text-xs">Manage Sessions</span>
           </Link>
         </Button>
-        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+        <Button
+          variant="outline"
+          className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors"
+          asChild
+        >
           <Link to="/admin/clients/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <Users className="h-5 w-5 text-accent" />
@@ -281,7 +299,11 @@ function AdminDashboard() {
             <span className="font-semibold uppercase tracking-wider text-xs">Add Client</span>
           </Link>
         </Button>
-        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+        <Button
+          variant="outline"
+          className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors"
+          asChild
+        >
           <Link to="/admin/bookings/new">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <CalendarIcon className="h-5 w-5 text-accent" />
@@ -289,7 +311,11 @@ function AdminDashboard() {
             <span className="font-semibold uppercase tracking-wider text-xs">Log Booking</span>
           </Link>
         </Button>
-        <Button variant="outline" className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors" asChild>
+        <Button
+          variant="outline"
+          className="h-auto flex flex-col items-center justify-center gap-2 py-6 border-dashed hover:border-accent hover:bg-accent/5 transition-colors"
+          asChild
+        >
           <Link to="/admin/settings">
             <div className="h-10 w-10 rounded-full bg-accent/10 flex items-center justify-center">
               <Settings className="h-5 w-5 text-accent" />
@@ -311,7 +337,9 @@ function AdminDashboard() {
                     <Info className="h-3.5 w-3.5 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="max-w-xs text-xs">Sessions scheduled for today. Check in clients as they arrive.</p>
+                    <p className="max-w-xs text-xs">
+                      Sessions scheduled for today. Check in clients as they arrive.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -343,7 +371,9 @@ function AdminDashboard() {
                             <span className="font-display font-semibold text-lg text-accent">
                               {format(new Date(session.start_time), "HH:mm")}
                             </span>
-                            <h3 className="font-semibold text-sm">{(session.session_types as any)?.title}</h3>
+                            <h3 className="font-semibold text-sm">
+                              {(session.session_types as any)?.title}
+                            </h3>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
                             {session.location_name} · Duration:{" "}
@@ -359,7 +389,12 @@ function AdminDashboard() {
                           <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded-sm">
                             {confirmed.length + attended.length}/{session.max_slots} Booked
                           </span>
-                          <Button variant="outline" size="sm" className="h-7 text-[10px] uppercase font-semibold tracking-wider px-3" asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-[10px] uppercase font-semibold tracking-wider px-3"
+                            asChild
+                          >
                             <Link to={`/admin/sessions/${session.id}`}>Details</Link>
                           </Button>
                         </div>
@@ -410,7 +445,10 @@ function AdminDashboard() {
                                       variant="outline"
                                       className="h-6 w-6 rounded-sm bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500/20 hover:text-rose-600"
                                       onClick={() =>
-                                        checkInMutation.mutate({ bookingId: b.id, status: "no-show" })
+                                        checkInMutation.mutate({
+                                          bookingId: b.id,
+                                          status: "no-show",
+                                        })
                                       }
                                       title="Mark No-Show"
                                     >
@@ -498,13 +536,18 @@ function AdminDashboard() {
               ) : recentActivity && recentActivity.length > 0 ? (
                 <div className="space-y-4">
                   {recentActivity.map((log: any) => (
-                    <div key={log.id} className="flex items-start gap-3 border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                    <div
+                      key={log.id}
+                      className="flex items-start gap-3 border-b border-border/50 pb-3 last:border-0 last:pb-0"
+                    >
                       <div className="mt-0.5 rounded-full bg-accent/10 p-1 shrink-0">
                         <Activity className="h-3 w-3 text-accent" />
                       </div>
                       <div>
                         <p className="text-xs font-medium text-foreground">
-                          {log.action.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                          {log.action
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (c: string) => c.toUpperCase())}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">{log.notes}</p>
                         <div className="flex items-center gap-2 mt-1">

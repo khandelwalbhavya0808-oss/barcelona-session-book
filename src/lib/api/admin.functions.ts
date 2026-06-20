@@ -5,7 +5,10 @@ import { z } from "zod";
 // Helper to verify admin
 async function verifyAdmin() {
   const supabase = createServerSupabase();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (authError || !user) throw new Error("Unauthorized");
 
   const { data: profile, error: profileError } = await supabase
@@ -22,9 +25,11 @@ async function verifyAdmin() {
 }
 
 export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
-  .validator(z.object({
-    range: z.enum(["today", "7d", "30d", "month"]).default("7d"),
-  }))
+  .validator(
+    z.object({
+      range: z.enum(["today", "7d", "30d", "month"]).default("7d"),
+    }),
+  )
   .handler(async ({ data: inputData }) => {
     const { supabase } = await verifyAdmin();
 
@@ -65,7 +70,7 @@ export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
       .from("profiles")
       .select("*", { count: "exact", head: true })
       .in("role", ["client", "user"]);
-      
+
     const { count: previousClientsCount } = await supabase
       .from("profiles")
       .select("*", { count: "exact", head: true })
@@ -87,7 +92,8 @@ export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
     // 3. Today's Sessions
     const { data: todaySessions } = await supabase
       .from("scheduled_sessions")
-      .select(`
+      .select(
+        `
         id,
         start_time,
         end_time,
@@ -108,7 +114,8 @@ export const getAdminDashboardStatsFn = createServerFn({ method: "GET" })
             email
           )
         )
-      `)
+      `,
+      )
       .gte("start_time", todayStart.toISOString())
       .lte("start_time", todayEnd.toISOString())
       .order("start_time", { ascending: true });
@@ -129,7 +136,8 @@ export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).hand
 
   const { data, error } = await supabase
     .from("scheduled_sessions")
-    .select(`
+    .select(
+      `
       id,
       start_time,
       end_time,
@@ -140,7 +148,8 @@ export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).hand
         title,
         duration_minutes
       )
-    `)
+    `,
+    )
     .gte("start_time", now.toISOString())
     .order("start_time", { ascending: true })
     .limit(50);
@@ -150,18 +159,20 @@ export const getAdminUpcomingSessionsFn = createServerFn({ method: "GET" }).hand
 });
 
 export const scheduleSessionFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    sessionTypeId: z.string().uuid(),
-    startTime: z.string(),
-    endTime: z.string(),
-    maxSlots: z.number(),
-    description: z.string().optional(),
-    locationName: z.string(),
-    pricing: z.number(),
-  }))
+  .validator(
+    z.object({
+      sessionTypeId: z.string().uuid(),
+      startTime: z.string(),
+      endTime: z.string(),
+      maxSlots: z.number(),
+      description: z.string().optional(),
+      locationName: z.string(),
+      pricing: z.number(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const { data: result, error } = await supabase
       .from("scheduled_sessions")
       .insert({
@@ -181,13 +192,15 @@ export const scheduleSessionFn = createServerFn({ method: "POST" })
   });
 
 export const updateBookingStatusFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    bookingId: z.string().uuid(),
-    status: z.enum(["confirmed", "cancelled", "late_cancelled", "attended", "no-show"])
-  }))
+  .validator(
+    z.object({
+      bookingId: z.string().uuid(),
+      status: z.enum(["confirmed", "cancelled", "late_cancelled", "attended", "no-show"]),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     // Using service role to bypass any weird RLS for admin mutations if needed,
     // but the client context as admin usually suffices.
     const { data: result, error } = await supabase
@@ -214,14 +227,16 @@ export const getAdminClientsFn = createServerFn({ method: "GET" }).handler(async
 });
 
 export const updateClientRoleFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    clientId: z.string().uuid(),
-    role: z.enum(["user", "client", "admin"]).optional(),
-    status: z.enum(["active", "banned", "rejected"]).optional()
-  }))
+  .validator(
+    z.object({
+      clientId: z.string().uuid(),
+      role: z.enum(["user", "client", "admin"]).optional(),
+      status: z.enum(["active", "banned", "rejected"]).optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const updates: any = {};
     if (data.role) updates.role = data.role;
     if (data.status) updates.status = data.status;
@@ -240,11 +255,13 @@ export const updateClientRoleFn = createServerFn({ method: "POST" })
   });
 
 export const createClientFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    fullName: z.string(),
-    email: z.string().email(),
-    role: z.enum(["user", "client"]).default("client"),
-  }))
+  .validator(
+    z.object({
+      fullName: z.string(),
+      email: z.string().email(),
+      role: z.enum(["user", "client"]).default("client"),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
     const serviceRoleSupabase = await createServerSupabaseServiceRole();
@@ -276,7 +293,8 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" }).handler(asyn
 
   const { data, error } = await supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id,
       status,
       payment_status,
@@ -297,7 +315,8 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" }).handler(asyn
         email,
         avatar_url
       )
-    `)
+    `,
+    )
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -305,14 +324,16 @@ export const getAdminBookingsFn = createServerFn({ method: "GET" }).handler(asyn
 });
 
 export const createBookingFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    clientId: z.string().uuid(),
-    sessionId: z.string().uuid(),
-    status: z.enum(["confirmed", "attended", "cancelled"]).default("confirmed"),
-  }))
+  .validator(
+    z.object({
+      clientId: z.string().uuid(),
+      sessionId: z.string().uuid(),
+      status: z.enum(["confirmed", "attended", "cancelled"]).default("confirmed"),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const { data: result, error } = await supabase
       .from("bookings")
       .insert({
@@ -329,13 +350,15 @@ export const createBookingFn = createServerFn({ method: "POST" })
   });
 
 export const updateBookingPaymentStatusFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    bookingId: z.string().uuid(),
-    paymentStatus: z.enum(["pending", "paid"])
-  }))
+  .validator(
+    z.object({
+      bookingId: z.string().uuid(),
+      paymentStatus: z.enum(["pending", "paid"]),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const { data: result, error } = await supabase
       .from("bookings")
       .update({ payment_status: data.paymentStatus })
@@ -360,13 +383,15 @@ export const getAdminSessionTypesFn = createServerFn({ method: "GET" }).handler(
 });
 
 export const toggleSessionTypeActiveFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    id: z.string().uuid(),
-    isActive: z.boolean()
-  }))
+  .validator(
+    z.object({
+      id: z.string().uuid(),
+      isActive: z.boolean(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const { data: result, error } = await supabase
       .from("session_types")
       .update({ is_active: data.isActive })
@@ -379,24 +404,26 @@ export const toggleSessionTypeActiveFn = createServerFn({ method: "POST" })
   });
 
 export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    title: z.string(),
-    description: z.string().optional(),
-    focus: z.enum(["Strength", "Conditioning", "Mobility"]),
-    location_type: z.enum(["Studio", "Outdoor"]),
-    location_name: z.string(),
-    pricing: z.number(),
-    max_slots: z.number(),
-    capacity: z.number().nullable().optional(),
-    duration_minutes: z.number(),
-    addRule: z.boolean(),
-    dayOfWeek: z.number().optional(),
-    startTime: z.string().optional(),
-    endTime: z.string().optional()
-  }))
+  .validator(
+    z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      focus: z.enum(["Strength", "Conditioning", "Mobility"]),
+      location_type: z.enum(["Studio", "Outdoor"]),
+      location_name: z.string(),
+      pricing: z.number(),
+      max_slots: z.number(),
+      capacity: z.number().nullable().optional(),
+      duration_minutes: z.number(),
+      addRule: z.boolean(),
+      dayOfWeek: z.number().optional(),
+      startTime: z.string().optional(),
+      endTime: z.string().optional(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     // 1. Insert session type template
     const { data: template, error: templateError } = await supabase
       .from("session_types")
@@ -418,7 +445,13 @@ export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
     if (templateError) throw templateError;
 
     // 2. Insert availability rule if requested
-    if (data.addRule && template && data.dayOfWeek !== undefined && data.startTime && data.endTime) {
+    if (
+      data.addRule &&
+      template &&
+      data.dayOfWeek !== undefined &&
+      data.startTime &&
+      data.endTime
+    ) {
       const { error: ruleError } = await supabase.from("availability_rules").insert({
         session_type_id: template.id,
         day_of_week: data.dayOfWeek,
@@ -435,31 +468,29 @@ export const createSessionTypeTemplateFn = createServerFn({ method: "POST" })
 export const getSiteSettingsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { supabase } = await verifyAdmin();
 
-  const { data, error } = await supabase
-    .from("site_settings")
-    .select("*")
-    .eq("id", 1)
-    .single();
+  const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).single();
 
   if (error) throw error;
   return data;
 });
 
 export const updateSiteSettingsFn = createServerFn({ method: "POST" })
-  .validator(z.object({
-    maintenance_mode: z.boolean(),
-    cancellation_grace_period_hours: z.number().min(0),
-    contact_email: z.string().email(),
-  }))
+  .validator(
+    z.object({
+      maintenance_mode: z.boolean(),
+      cancellation_grace_period_hours: z.number().min(0),
+      contact_email: z.string().email(),
+    }),
+  )
   .handler(async ({ data }) => {
     const { supabase } = await verifyAdmin();
-    
+
     const { data: result, error } = await supabase
       .from("site_settings")
       .update({
         maintenance_mode: data.maintenance_mode,
         cancellation_grace_period_hours: data.cancellation_grace_period_hours,
-        contact_email: data.contact_email
+        contact_email: data.contact_email,
       })
       .eq("id", 1)
       .select()
@@ -470,15 +501,18 @@ export const updateSiteSettingsFn = createServerFn({ method: "POST" })
   });
 
 export const getAdminRecentActivityFn = createServerFn({ method: "GET" })
-  .validator(z.object({
-    filter: z.enum(["all", "user", "admin"]).default("all")
-  }))
+  .validator(
+    z.object({
+      filter: z.enum(["all", "user", "admin"]).default("all"),
+    }),
+  )
   .handler(async ({ data: input }) => {
     const { supabase } = await verifyAdmin();
 
     const { data: bookingLogs, error } = await supabase
       .from("booking_history_log")
-      .select(`
+      .select(
+        `
         id,
         action,
         notes,
@@ -487,7 +521,8 @@ export const getAdminRecentActivityFn = createServerFn({ method: "GET" })
           full_name,
           role
         )
-      `)
+      `,
+      )
       .order("created_at", { ascending: false })
       .limit(40);
 
@@ -500,7 +535,7 @@ export const getAdminRecentActivityFn = createServerFn({ method: "GET" })
       notes: log.notes,
       created_at: log.created_at,
       user: log.profiles?.full_name || "System",
-      role: log.profiles?.role || "system"
+      role: log.profiles?.role || "system",
     }));
 
     if (input.filter === "user") {

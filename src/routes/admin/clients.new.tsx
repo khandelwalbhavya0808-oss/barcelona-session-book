@@ -58,7 +58,8 @@ function AdminClientsNewPage() {
             Add Client
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            Manually create a new client account. They will receive an email with their credentials if enabled.
+            Manually create a new client account. They will receive an email with their credentials
+            if enabled.
           </p>
         </div>
 

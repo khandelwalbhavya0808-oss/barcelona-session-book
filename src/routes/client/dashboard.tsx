@@ -16,7 +16,7 @@ import {
   Sparkles,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -118,22 +118,22 @@ function ClientDashboard() {
   const pastBookings = bookings?.filter((b) => b.status !== "confirmed") || [];
 
   // Determine next session
-  const nextSession = upcomingBookings.length > 0
-    ? upcomingBookings.reduce((earliest, current) => {
-        const earliestTime = new Date(earliest.scheduled_sessions.start_time).getTime();
-        const currentTime = new Date(current.scheduled_sessions.start_time).getTime();
-        return earliestTime < currentTime ? earliest : current;
-      })
-    : null;
+  const nextSession =
+    upcomingBookings.length > 0
+      ? upcomingBookings.reduce((earliest, current) => {
+          const earliestTime = new Date(earliest.scheduled_sessions.start_time).getTime();
+          const currentTime = new Date(current.scheduled_sessions.start_time).getTime();
+          return earliestTime < currentTime ? earliest : current;
+        })
+      : null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 space-y-10 animate-in fade-in duration-500">
-      
       {/* Premium Hero Banner */}
       <div className="relative overflow-hidden rounded-xl border border-border/80 bg-gradient-to-r from-surface to-background p-8 md:p-10 shadow-lg">
         <div className="absolute top-0 right-0 -mt-6 -mr-6 h-36 w-36 rounded-full bg-accent/5 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 -mb-10 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
-        
+
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent uppercase tracking-wider mb-4 border border-accent/20">
@@ -143,7 +143,8 @@ function ClientDashboard() {
               Welcome back, <span className="text-accent">{profile?.full_name || user?.email}</span>
             </h1>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-              Track your training progress, view upcoming sessions, and review your payment logs. Let's make every session count.
+              Track your training progress, view upcoming sessions, and review your payment logs.
+              Let's make every session count.
             </p>
             <div className="mt-5">
               <Link
@@ -154,7 +155,7 @@ function ClientDashboard() {
               </Link>
             </div>
           </div>
-          
+
           {nextSession && (
             <div className="flex flex-col bg-background/60 backdrop-blur-sm border border-border/40 p-5 rounded-lg max-w-xs w-full">
               <span className="text-[10px] uppercase tracking-wider text-accent font-semibold flex items-center gap-1">
@@ -164,7 +165,10 @@ function ClientDashboard() {
                 {nextSession.scheduled_sessions.session_types?.title}
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                {format(new Date(nextSession.scheduled_sessions.start_time), "MMM d, yyyy 'at' HH:mm")}
+                {format(
+                  new Date(nextSession.scheduled_sessions.start_time),
+                  "MMM d, yyyy 'at' HH:mm",
+                )}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 📍 {nextSession.scheduled_sessions.location_name}
@@ -240,8 +244,13 @@ function ClientDashboard() {
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-muted-foreground text-ellipsis overflow-hidden whitespace-nowrap max-w-[120px]">{profile?.email}</span>
-              <Link to="/profile" className="text-accent hover:underline font-semibold flex items-center gap-0.5">
+              <span className="text-muted-foreground text-ellipsis overflow-hidden whitespace-nowrap max-w-[120px]">
+                {profile?.email}
+              </span>
+              <Link
+                to="/profile"
+                className="text-accent hover:underline font-semibold flex items-center gap-0.5"
+              >
                 Edit
               </Link>
             </div>
@@ -251,7 +260,6 @@ function ClientDashboard() {
 
       {/* Main Grid: Upcoming Bookings & Waitlist / Alerts */}
       <div className="grid gap-8 md:grid-cols-[2fr_1fr]">
-        
         {/* Upcoming Bookings card */}
         <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
           <div className="mb-6 flex items-center justify-between">
@@ -263,7 +271,8 @@ function ClientDashboard() {
                 to="/client/bookings"
                 className="text-xs font-semibold text-accent hover:underline flex items-center gap-1 group"
               >
-                Manage All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                Manage All{" "}
+                <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             )}
           </div>
@@ -335,15 +344,19 @@ function ClientDashboard() {
             </h2>
             <div className="space-y-4">
               <div className="text-xs border-b border-border/40 pb-3 last:border-0 last:pb-0">
-                <span className="font-semibold text-accent block mb-1">📍 Outdoor Training Locations</span>
+                <span className="font-semibold text-accent block mb-1">
+                  📍 Outdoor Training Locations
+                </span>
                 <p className="text-muted-foreground leading-relaxed">
-                  Sessions scheduled for beach/park are running as planned. If rain occurs, check your email for alternate indoor studio assignments.
+                  Sessions scheduled for beach/park are running as planned. If rain occurs, check
+                  your email for alternate indoor studio assignments.
                 </p>
               </div>
               <div className="text-xs border-b border-border/40 pb-3 last:border-0 last:pb-0">
                 <span className="font-semibold text-accent block mb-1">⏰ Cancellation Policy</span>
                 <p className="text-muted-foreground leading-relaxed">
-                  Please cancel or reschedule at least 12 hours in advance. Late cancellations count as attended.
+                  Please cancel or reschedule at least 12 hours in advance. Late cancellations count
+                  as attended.
                 </p>
               </div>
             </div>
@@ -428,9 +441,10 @@ function ClientDashboard() {
                     statusBadge = "text-muted-foreground bg-muted/10 border-border";
                   }
 
-                  const paymentBadge = booking.payment_status === "paid"
-                    ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                    : "text-amber-400 bg-amber-500/10 border-amber-500/20";
+                  const paymentBadge =
+                    booking.payment_status === "paid"
+                      ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                      : "text-amber-400 bg-amber-500/10 border-amber-500/20";
 
                   return (
                     <tr key={booking.id} className="hover:bg-background/20 transition-colors">
@@ -446,16 +460,22 @@ function ClientDashboard() {
                           {format(startDate, "HH:mm")}
                         </span>
                       </td>
-                      <td className="p-4 text-muted-foreground font-medium">{sess.location_name}</td>
+                      <td className="p-4 text-muted-foreground font-medium">
+                        {sess.location_name}
+                      </td>
                       <td className="p-4 text-foreground font-semibold text-right">
                         €{Number(sess.session_types?.pricing || 0).toFixed(2)}
                       </td>
                       <td className="p-4">
                         <div className="flex items-center justify-center gap-2">
-                          <span className={`inline-flex items-center rounded px-2 py-0.5 font-semibold uppercase tracking-wider text-[9px] border ${statusBadge}`}>
+                          <span
+                            className={`inline-flex items-center rounded px-2 py-0.5 font-semibold uppercase tracking-wider text-[9px] border ${statusBadge}`}
+                          >
                             {booking.status.replace("-", " ")}
                           </span>
-                          <span className={`inline-flex items-center rounded px-2 py-0.5 font-semibold uppercase tracking-wider text-[9px] border ${paymentBadge}`}>
+                          <span
+                            className={`inline-flex items-center rounded px-2 py-0.5 font-semibold uppercase tracking-wider text-[9px] border ${paymentBadge}`}
+                          >
                             {booking.payment_status === "paid" ? "Paid In-Person" : "Unpaid"}
                           </span>
                         </div>
@@ -468,8 +488,6 @@ function ClientDashboard() {
           </div>
         )}
       </div>
-
     </div>
   );
 }
-

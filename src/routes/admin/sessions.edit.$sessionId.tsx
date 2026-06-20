@@ -36,7 +36,8 @@ function AdminSessionsEditPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("scheduled_sessions")
-        .select(`
+        .select(
+          `
           *,
           session_types (
             id,
@@ -48,7 +49,8 @@ function AdminSessionsEditPage() {
             pricing,
             duration_minutes
           )
-        `)
+        `,
+        )
         .eq("id", sessionId)
         .single();
 

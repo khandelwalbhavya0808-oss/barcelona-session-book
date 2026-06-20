@@ -187,7 +187,13 @@ function ClientBookingPage() {
 
   // Join waitlist mutation
   const waitlistMutation = useMutation({
-    mutationFn: async ({ sessId, currentWaitlistCount }: { sessId: string; currentWaitlistCount: number }) => {
+    mutationFn: async ({
+      sessId,
+      currentWaitlistCount,
+    }: {
+      sessId: string;
+      currentWaitlistCount: number;
+    }) => {
       if (!user) throw new Error("Authentication required.");
       if (profile?.status === "banned" || profile?.status === "rejected") {
         throw new Error("Your account is restricted from joining waitlists.");
@@ -295,7 +301,8 @@ function ClientBookingPage() {
     if (actionType === "book") {
       bookMutation.mutate(selectedSession.id);
     } else {
-      const activeWaitlist = selectedSession.waitlists?.filter((w: any) => w.status === "waiting") || [];
+      const activeWaitlist =
+        selectedSession.waitlists?.filter((w: any) => w.status === "waiting") || [];
       waitlistMutation.mutate({
         sessId: selectedSession.id,
         currentWaitlistCount: activeWaitlist.length,
@@ -304,8 +311,10 @@ function ClientBookingPage() {
   };
 
   // Helper values for active session
-  const activeBookings = selectedSession?.bookings?.filter((b: any) => b.status === "confirmed") || [];
-  const activeWaitlist = selectedSession?.waitlists?.filter((w: any) => w.status === "waiting") || [];
+  const activeBookings =
+    selectedSession?.bookings?.filter((b: any) => b.status === "confirmed") || [];
+  const activeWaitlist =
+    selectedSession?.waitlists?.filter((w: any) => w.status === "waiting") || [];
   const isFull = activeBookings.length >= (selectedSession?.max_slots || 0);
   const hasBooked = user ? activeBookings.some((b: any) => b.client_id === user.id) : false;
   const hasWaitlisted = user ? activeWaitlist.some((w: any) => w.client_id === user.id) : false;
@@ -313,7 +322,6 @@ function ClientBookingPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 animate-in fade-in duration-500">
-      
       {/* Header and Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border/40 pb-6">
         <div>
@@ -420,10 +428,8 @@ function ClientBookingPage() {
       {/* Main Content Areas based on Switcher */}
       {viewMode === "calendar" ? (
         <div className="grid gap-8 md:grid-cols-[1.5fr_1fr]">
-          
           {/* Left Grid: Calendar Month Component */}
           <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-            
             {/* Calendar Month Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display font-bold text-lg text-foreground">
@@ -474,8 +480,8 @@ function ClientBookingPage() {
                       isSelected
                         ? "bg-accent/15 border-accent text-accent shadow-sm"
                         : inMonth
-                        ? "bg-background border-border hover:border-accent/40 text-foreground"
-                        : "bg-background/25 border-border/30 text-muted-foreground/35 cursor-default"
+                          ? "bg-background border-border hover:border-accent/40 text-foreground"
+                          : "bg-background/25 border-border/30 text-muted-foreground/35 cursor-default"
                     }`}
                   >
                     <span
@@ -505,7 +511,8 @@ function ClientBookingPage() {
           <div className="rounded-xl border border-border bg-surface p-6 shadow-sm flex flex-col justify-between space-y-6">
             <div>
               <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-accent" /> Available on {format(selectedDate, "MMM d, yyyy")}
+                <CalendarDays className="h-5 w-5 text-accent" /> Available on{" "}
+                {format(selectedDate, "MMM d, yyyy")}
               </h2>
 
               {selectedDateSessions.length === 0 ? (
@@ -513,15 +520,21 @@ function ClientBookingPage() {
                   <CalendarIcon className="h-10 w-10 text-muted-foreground/20 mb-3" />
                   <p className="text-sm font-semibold text-foreground">No sessions scheduled</p>
                   <p className="mt-1 text-xs text-muted-foreground max-w-xs px-4">
-                    There are no workout timetables available for this day. Select another day on the calendar.
+                    There are no workout timetables available for this day. Select another day on
+                    the calendar.
                   </p>
                 </div>
               ) : (
                 <div className="space-y-4 max-h-[450px] overflow-y-auto pr-1">
                   {selectedDateSessions.map((session) => {
-                    const bookingsCount = session.bookings?.filter((b: any) => b.status === "confirmed").length || 0;
+                    const bookingsCount =
+                      session.bookings?.filter((b: any) => b.status === "confirmed").length || 0;
                     const sessionFull = bookingsCount >= session.max_slots;
-                    const alreadyBooked = user && session.bookings?.some((b: any) => b.client_id === user.id && b.status === "confirmed");
+                    const alreadyBooked =
+                      user &&
+                      session.bookings?.some(
+                        (b: any) => b.client_id === user.id && b.status === "confirmed",
+                      );
 
                     return (
                       <div
@@ -538,14 +551,16 @@ function ClientBookingPage() {
                               {session.session_types?.title}
                             </h3>
                           </div>
-                          
-                          <span className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-sm border shrink-0 ${
-                            alreadyBooked
-                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                              : sessionFull
-                              ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                              : "bg-accent/10 border-accent/20 text-accent"
-                          }`}>
+
+                          <span
+                            className={`text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-sm border shrink-0 ${
+                              alreadyBooked
+                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                : sessionFull
+                                  ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                  : "bg-accent/10 border-accent/20 text-accent"
+                            }`}
+                          >
                             {alreadyBooked ? "Booked" : sessionFull ? "Waitlist" : "Open"}
                           </span>
                         </div>
@@ -553,7 +568,8 @@ function ClientBookingPage() {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground pt-2 border-t border-border/40">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" />
-                            {format(new Date(session.start_time), "HH:mm")} ({session.session_types?.duration_minutes}m)
+                            {format(new Date(session.start_time), "HH:mm")} (
+                            {session.session_types?.duration_minutes}m)
                           </span>
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3.5 w-3.5" />
@@ -569,10 +585,12 @@ function ClientBookingPage() {
 
             <div className="border-t border-border/40 pt-4 text-xs text-muted-foreground flex items-center gap-2 leading-relaxed">
               <Info className="h-4 w-4 text-accent shrink-0" />
-              <span>Click on any session card to view workout descriptions, pricing details, and complete your reservation.</span>
+              <span>
+                Click on any session card to view workout descriptions, pricing details, and
+                complete your reservation.
+              </span>
             </div>
           </div>
-
         </div>
       ) : (
         /* List View Component (Chronological Timeline) */
@@ -588,9 +606,14 @@ function ClientBookingPage() {
           ) : (
             <div className="divide-y divide-border/40 space-y-4">
               {filteredSessions.map((session, idx) => {
-                const bookingsCount = session.bookings?.filter((b: any) => b.status === "confirmed").length || 0;
+                const bookingsCount =
+                  session.bookings?.filter((b: any) => b.status === "confirmed").length || 0;
                 const sessionFull = bookingsCount >= session.max_slots;
-                const alreadyBooked = user && session.bookings?.some((b: any) => b.client_id === user.id && b.status === "confirmed");
+                const alreadyBooked =
+                  user &&
+                  session.bookings?.some(
+                    (b: any) => b.client_id === user.id && b.status === "confirmed",
+                  );
 
                 return (
                   <div
@@ -629,14 +652,20 @@ function ClientBookingPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded border ${
-                        alreadyBooked
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                      <span
+                        className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded border ${
+                          alreadyBooked
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                            : sessionFull
+                              ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                              : "bg-accent/10 border-accent/20 text-accent"
+                        }`}
+                      >
+                        {alreadyBooked
+                          ? "Already Booked"
                           : sessionFull
-                          ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                          : "bg-accent/10 border-accent/20 text-accent"
-                      }`}>
-                        {alreadyBooked ? "Already Booked" : sessionFull ? "Waitlist Queue" : "Slots Open"}
+                            ? "Waitlist Queue"
+                            : "Slots Open"}
                       </span>
                       <button className="h-9 px-4 rounded-md bg-accent text-accent-foreground text-xs font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity">
                         View Details
@@ -653,7 +682,10 @@ function ClientBookingPage() {
       {/* Details Side-Drawer/Sheet */}
       <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         {selectedSession && (
-          <SheetContent side="right" className="bg-surface border-border flex flex-col justify-between h-full w-full sm:max-w-md">
+          <SheetContent
+            side="right"
+            className="bg-surface border-border flex flex-col justify-between h-full w-full sm:max-w-md"
+          >
             <div className="space-y-6">
               <SheetHeader className="text-left border-b border-border/40 pb-5">
                 <span className="inline-flex self-start items-center gap-1.5 rounded-sm bg-accent/10 px-2 py-0.5 text-xs font-semibold text-accent uppercase tracking-wider mb-2">
@@ -663,7 +695,8 @@ function ClientBookingPage() {
                   {selectedSession.session_types?.title}
                 </SheetTitle>
                 <SheetDescription className="text-muted-foreground text-sm mt-2">
-                  {selectedSession.session_types?.description || "No workout description provided for this session."}
+                  {selectedSession.session_types?.description ||
+                    "No workout description provided for this session."}
                 </SheetDescription>
               </SheetHeader>
 
@@ -672,12 +705,16 @@ function ClientBookingPage() {
                 <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
                   <CalendarIcon className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">Date & Time</span>
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Date & Time
+                    </span>
                     <span className="font-semibold text-foreground">
                       {format(new Date(selectedSession.start_time), "EEEE, MMM d, yyyy")}
                     </span>
                     <span className="block text-xs text-muted-foreground">
-                      {format(new Date(selectedSession.start_time), "HH:mm")} - {format(new Date(selectedSession.end_time), "HH:mm")} ({selectedSession.session_types?.duration_minutes} min)
+                      {format(new Date(selectedSession.start_time), "HH:mm")} -{" "}
+                      {format(new Date(selectedSession.end_time), "HH:mm")} (
+                      {selectedSession.session_types?.duration_minutes} min)
                     </span>
                   </div>
                 </div>
@@ -685,33 +722,46 @@ function ClientBookingPage() {
                 <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
                   <MapPin className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">Location</span>
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Location
+                    </span>
                     <span className="font-semibold text-foreground">
                       {selectedSession.session_types?.location_type}
                     </span>
-                    <span className="block text-xs text-muted-foreground">{selectedSession.location_name}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {selectedSession.location_name}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
                   <DollarSign className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">Pricing</span>
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Pricing
+                    </span>
                     <span className="font-semibold text-foreground">
                       €{Number(selectedSession.pricing).toFixed(2)}
                     </span>
-                    <span className="block text-xs text-muted-foreground">Paid on-premises (in-person)</span>
+                    <span className="block text-xs text-muted-foreground">
+                      Paid on-premises (in-person)
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 p-3 bg-background/50 border border-border/40 rounded-lg">
                   <Clock className="h-5 w-5 text-accent shrink-0" />
                   <div>
-                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">Availability</span>
-                    <span className="font-semibold text-foreground">
-                      {selectedSession.max_slots - activeBookings.length} of {selectedSession.max_slots} slots available
+                    <span className="block text-[10px] uppercase tracking-wider text-muted-foreground">
+                      Availability
                     </span>
-                    <span className="block text-xs text-muted-foreground">{activeWaitlist.length} clients currently in waitlist</span>
+                    <span className="font-semibold text-foreground">
+                      {selectedSession.max_slots - activeBookings.length} of{" "}
+                      {selectedSession.max_slots} slots available
+                    </span>
+                    <span className="block text-xs text-muted-foreground">
+                      {activeWaitlist.length} clients currently in waitlist
+                    </span>
                   </div>
                 </div>
               </div>
@@ -723,7 +773,8 @@ function ClientBookingPage() {
                   <div>
                     <span className="font-bold">Schedule Overlap Alert</span>
                     <p className="mt-0.5 opacity-90">
-                      You already have a session booked for <strong>{conflictSessionTitle}</strong> that overlaps with this slot's time.
+                      You already have a session booked for <strong>{conflictSessionTitle}</strong>{" "}
+                      that overlaps with this slot's time.
                     </p>
                   </div>
                 </div>
@@ -737,7 +788,9 @@ function ClientBookingPage() {
                   <CheckCircle2 className="h-5 w-5 shrink-0" />
                   <div>
                     <span className="font-bold">You are booked for this workout!</span>
-                    <p className="mt-0.5 opacity-80">Check bookings history in your dashboard settings.</p>
+                    <p className="mt-0.5 opacity-80">
+                      Check bookings history in your dashboard settings.
+                    </p>
                   </div>
                 </div>
               ) : hasWaitlisted ? (
@@ -771,7 +824,9 @@ function ClientBookingPage() {
                   <p className="text-[10px] text-center text-muted-foreground">
                     {isFull
                       ? "This session is full. Join waitlist position to secure booking on cancel."
-                      : "Booking is free. €" + Number(selectedSession.pricing).toFixed(2) + " is due in person at the gym premises."}
+                      : "Booking is free. €" +
+                        Number(selectedSession.pricing).toFixed(2) +
+                        " is due in person at the gym premises."}
                   </p>
                 </div>
               )}
@@ -792,21 +847,26 @@ function ClientBookingPage() {
                 {actionType === "book" ? (
                   <>
                     <p>
-                      Are you sure you want to book <strong>{selectedSession.session_types?.title}</strong>?
+                      Are you sure you want to book{" "}
+                      <strong>{selectedSession.session_types?.title}</strong>?
                     </p>
                     <p>
-                      <strong>Date:</strong> {format(new Date(selectedSession.start_time), "EEEE, MMMM d, yyyy")}
+                      <strong>Date:</strong>{" "}
+                      {format(new Date(selectedSession.start_time), "EEEE, MMMM d, yyyy")}
                     </p>
                     <p>
                       <strong>Time:</strong> {format(new Date(selectedSession.start_time), "HH:mm")}
                     </p>
                     <p className="pt-2 text-foreground font-semibold">
-                      You will pay €{Number(selectedSession.pricing).toFixed(2)} in person at the venue.
+                      You will pay €{Number(selectedSession.pricing).toFixed(2)} in person at the
+                      venue.
                     </p>
                   </>
                 ) : (
                   <p>
-                    This session is currently full. Join the waitlist at position #{activeWaitlist.length + 1}. You'll be automatically booked if a slot is released.
+                    This session is currently full. Join the waitlist at position #
+                    {activeWaitlist.length + 1}. You'll be automatically booked if a slot is
+                    released.
                   </p>
                 )}
               </AlertDialogDescription>
@@ -825,7 +885,6 @@ function ClientBookingPage() {
           </AlertDialogContent>
         )}
       </AlertDialog>
-
     </div>
   );
 }

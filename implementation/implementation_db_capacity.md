@@ -3,21 +3,25 @@
 ## Proposed Changes
 
 ### 1. Database Adjustments
+
 - Add a new column `capacity` to the `session_types` table. (Nullable integer, or default 1 depending on confirmation, assuming empty/null by default).
 
 ### 2. Session Types Management (Frontend)
+
 - **Session Types Template List:** Add a new `Capacity` column to the UI table displaying session types (likely in `settings.tsx`).
 - **Create Session Type Modal:** Add a new `capacity` input field (defaults to empty).
 - **Edit Session Type Modal:** Add the `capacity` input field to allow updating existing capacities.
 
 ### 3. Schedule Sessions (Frontend)
-- **Create/Edit Schedule Session Modal:** 
+
+- **Create/Edit Schedule Session Modal:**
   - Ensure a `capacity` field is present.
   - When a user selects a session type, automatically fill the `capacity` field with the value from the selected session type.
   - Ensure the `description` field is shown when creating or editing a session.
 - **Active Sessions Table:** Add a new column for `Description` placed immediately after the session name.
 
 ## Checklist
+
 - [ ] Create Supabase migration to add `capacity` to `public.session_types`.
 - [ ] Run migration locally (`supabase db reset` or `supabase migration up`).
 - [ ] Update frontend types for `session_types` to include `capacity`.

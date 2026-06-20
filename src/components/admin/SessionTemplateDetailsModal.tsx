@@ -20,7 +20,11 @@ interface SessionTemplateDetailsModalProps {
   onClose: () => void;
 }
 
-export function SessionTemplateDetailsModal({ template, isOpen, onClose }: SessionTemplateDetailsModalProps) {
+export function SessionTemplateDetailsModal({
+  template,
+  isOpen,
+  onClose,
+}: SessionTemplateDetailsModalProps) {
   if (!template) return null;
 
   return (
@@ -30,16 +34,16 @@ export function SessionTemplateDetailsModal({ template, isOpen, onClose }: Sessi
           <DialogTitle className="font-display text-2xl flex items-center gap-2">
             Template Details
           </DialogTitle>
-          <DialogDescription>
-            ID: {template.id}
-          </DialogDescription>
+          <DialogDescription>ID: {template.id}</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-6 py-4">
           {/* Status Row */}
           <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg border border-border/50">
             <div className="flex flex-col gap-1">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Status</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Status
+              </span>
               <Badge
                 variant={template.is_active ? "default" : "secondary"}
                 className={
@@ -52,7 +56,9 @@ export function SessionTemplateDetailsModal({ template, isOpen, onClose }: Sessi
               </Badge>
             </div>
             <div className="flex flex-col gap-1 items-end">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Focus</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Focus
+              </span>
               <Badge variant="outline" className="uppercase border-border">
                 {template.focus || "General"}
               </Badge>
@@ -74,7 +80,10 @@ export function SessionTemplateDetailsModal({ template, isOpen, onClose }: Sessi
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Description</span>
-                <span className="font-medium text-right max-w-[200px] truncate" title={template.description}>
+                <span
+                  className="font-medium text-right max-w-[200px] truncate"
+                  title={template.description}
+                >
                   {template.description || "N/A"}
                 </span>
               </div>
@@ -121,8 +130,7 @@ export function SessionTemplateDetailsModal({ template, isOpen, onClose }: Sessi
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Price</span>
                 <span className="font-medium flex items-center gap-1.5">
-                  <CreditCard className="h-3 w-3 text-muted-foreground" />
-                  €{template.pricing}
+                  <CreditCard className="h-3 w-3 text-muted-foreground" />€{template.pricing}
                 </span>
               </div>
             </div>

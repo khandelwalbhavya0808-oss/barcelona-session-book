@@ -22,10 +22,7 @@ function AdminSettingsPage() {
   const [contactEmail, setContactEmail] = useState("");
 
   // Query: Fetch Site Settings
-  const {
-    data: siteSettings,
-    isLoading: siteSettingsLoading,
-  } = useQuery({
+  const { data: siteSettings, isLoading: siteSettingsLoading } = useQuery({
     queryKey: ["admin-site-settings"],
     queryFn: async () => {
       return await getSiteSettingsFn();
@@ -234,7 +231,8 @@ function AdminSettingsPage() {
                     className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent"
                   />
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    Bookings cancelled within this window before the session start time will be marked as "late cancelled".
+                    Bookings cancelled within this window before the session start time will be
+                    marked as "late cancelled".
                   </p>
                 </div>
 
@@ -270,27 +268,27 @@ function AdminSettingsPage() {
 
           {/* Slot generation engine trigger */}
           <div className="rounded-sm border border-border bg-surface p-6 shadow-sm space-y-6 h-fit">
-          <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <Settings className="h-4 w-4 text-accent" /> Generation Engine
-          </h2>
+            <h2 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <Settings className="h-4 w-4 text-accent" /> Generation Engine
+            </h2>
 
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Triggering slot generation will compute all active availability rules for the next 28
-            days and create individual calendar sessions if they don't already exist.
-          </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Triggering slot generation will compute all active availability rules for the next 28
+              days and create individual calendar sessions if they don't already exist.
+            </p>
 
-          <button
-            onClick={() => generateSlotsMutation.mutate()}
-            disabled={generateSlotsMutation.isPending}
-            className="w-full h-10 flex items-center justify-center rounded-sm bg-accent text-xs font-semibold uppercase tracking-wider text-accent-foreground hover:opacity-90 disabled:opacity-50 gap-2"
-          >
-            {generateSlotsMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Generate slots (4 Weeks)"
-            )}
-          </button>
-        </div>
+            <button
+              onClick={() => generateSlotsMutation.mutate()}
+              disabled={generateSlotsMutation.isPending}
+              className="w-full h-10 flex items-center justify-center rounded-sm bg-accent text-xs font-semibold uppercase tracking-wider text-accent-foreground hover:opacity-90 disabled:opacity-50 gap-2"
+            >
+              {generateSlotsMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Generate slots (4 Weeks)"
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Right Column: Availability Exceptions */}

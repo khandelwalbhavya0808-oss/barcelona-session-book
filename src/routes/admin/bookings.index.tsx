@@ -1,5 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Plus, Calendar as CalendarIcon, Filter, XCircle, RefreshCcw, Eye, CheckCircle, Clock, CreditCard, Users, Search } from "lucide-react";
+import {
+  Plus,
+  Calendar as CalendarIcon,
+  Filter,
+  XCircle,
+  RefreshCcw,
+  Eye,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  Users,
+  Search,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -52,7 +64,9 @@ function AdminBookingsList() {
   const totalCount = bookings?.length || 0;
   const attendedCount = bookings?.filter((b: any) => b.status === "attended").length || 0;
   const confirmedCount = bookings?.filter((b: any) => b.status === "confirmed").length || 0;
-  const cancelledCount = bookings?.filter((b: any) => b.status === "cancelled" || b.status === "late_cancelled").length || 0;
+  const cancelledCount =
+    bookings?.filter((b: any) => b.status === "cancelled" || b.status === "late_cancelled")
+      .length || 0;
 
   const displayBookings = (bookings || []).filter((booking: any) => {
     // Search Query (Client name/email, session title)
@@ -61,14 +75,18 @@ function AdminBookingsList() {
       const clientEmail = booking.profiles?.email?.toLowerCase() || "";
       const sessionTitle = booking.scheduled_sessions?.session_types?.title?.toLowerCase() || "";
       const query = searchQuery.toLowerCase();
-      if (!clientName.includes(query) && !clientEmail.includes(query) && !sessionTitle.includes(query)) {
+      if (
+        !clientName.includes(query) &&
+        !clientEmail.includes(query) &&
+        !sessionTitle.includes(query)
+      ) {
         return false;
       }
     }
 
     // Status Filter
     if (statusFilter !== "all" && booking.status !== statusFilter) return false;
-    
+
     // Session Type Filter
     if (sessionTypeFilter !== "all") {
       const typeId = booking.scheduled_sessions?.session_types?.id;
@@ -79,11 +97,21 @@ function AdminBookingsList() {
     if (dateRange?.from) {
       const bookingDate = new Date(booking.scheduled_sessions?.start_time || booking.created_at);
       if (dateRange.to) {
-        if (!isWithinInterval(bookingDate, { start: startOfDay(dateRange.from), end: endOfDay(dateRange.to) })) {
+        if (
+          !isWithinInterval(bookingDate, {
+            start: startOfDay(dateRange.from),
+            end: endOfDay(dateRange.to),
+          })
+        ) {
           return false;
         }
       } else {
-        if (!isWithinInterval(bookingDate, { start: startOfDay(dateRange.from), end: endOfDay(dateRange.from) })) {
+        if (
+          !isWithinInterval(bookingDate, {
+            start: startOfDay(dateRange.from),
+            end: endOfDay(dateRange.from),
+          })
+        ) {
           return false;
         }
       }
@@ -99,7 +127,12 @@ function AdminBookingsList() {
 
   const getInitials = (name?: string, email?: string) => {
     if (name) {
-      return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
     }
     if (email) {
       return email.slice(0, 2).toUpperCase();
@@ -124,7 +157,10 @@ function AdminBookingsList() {
             Track customer attendance, verify payments, and manage reservations.
           </p>
         </div>
-        <Button asChild className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/15 cursor-pointer">
+        <Button
+          asChild
+          className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/15 cursor-pointer"
+        >
           <Link to="/admin/bookings/new">
             <Plus className="mr-2 h-4 w-4" />
             Log Booking
@@ -137,7 +173,9 @@ function AdminBookingsList() {
         {/* Total Bookings */}
         <div className="relative overflow-hidden rounded-xl border border-border/40 bg-surface/50 p-5 backdrop-blur-md shadow-sm group hover:border-accent/30 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Bookings</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Total Bookings
+            </span>
             <div className="p-2 rounded-lg bg-accent/10 text-accent">
               <Users className="h-4.5 w-4.5" />
             </div>
@@ -152,7 +190,9 @@ function AdminBookingsList() {
         {/* Attended Bookings */}
         <div className="relative overflow-hidden rounded-xl border border-border/40 bg-surface/50 p-5 backdrop-blur-md shadow-sm group hover:border-emerald-500/30 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attended</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Attended
+            </span>
             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
               <CheckCircle className="h-4.5 w-4.5" />
             </div>
@@ -169,13 +209,17 @@ function AdminBookingsList() {
         {/* Confirmed Bookings */}
         <div className="relative overflow-hidden rounded-xl border border-border/40 bg-surface/50 p-5 backdrop-blur-md shadow-sm group hover:border-blue-500/30 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Confirmed</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Confirmed
+            </span>
             <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
               <Clock className="h-4.5 w-4.5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-display font-bold text-foreground">{confirmedCount}</span>
+            <span className="text-2xl font-display font-bold text-foreground">
+              {confirmedCount}
+            </span>
             <span className="text-xs text-muted-foreground">pending session</span>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500/30 to-blue-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -184,13 +228,17 @@ function AdminBookingsList() {
         {/* Cancelled Bookings */}
         <div className="relative overflow-hidden rounded-xl border border-border/40 bg-surface/50 p-5 backdrop-blur-md shadow-sm group hover:border-rose-500/30 transition-all duration-300">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cancelled</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Cancelled
+            </span>
             <div className="p-2 rounded-lg bg-rose-500/10 text-rose-500">
               <XCircle className="h-4.5 w-4.5" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-display font-bold text-foreground">{cancelledCount}</span>
+            <span className="text-2xl font-display font-bold text-foreground">
+              {cancelledCount}
+            </span>
             <span className="text-xs text-rose-500 font-medium">
               {totalCount > 0 ? Math.round((cancelledCount / totalCount) * 100) : 0}% cancel rate
             </span>
@@ -216,7 +264,7 @@ function AdminBookingsList() {
         {/* Selectors */}
         <div className="flex flex-wrap items-center gap-3">
           <DateRangePicker date={dateRange} setDate={setDateRange} />
-          
+
           <div className="flex items-center gap-2 bg-background/50 border border-border rounded-lg px-3 h-10">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <Select value={sessionTypeFilter} onValueChange={setSessionTypeFilter}>
@@ -226,7 +274,9 @@ function AdminBookingsList() {
               <SelectContent>
                 <SelectItem value="all">All Workouts</SelectItem>
                 {sessionTypes?.map((type: any) => (
-                  <SelectItem key={type.id} value={type.id}>{type.title}</SelectItem>
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.title}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -289,7 +339,9 @@ function AdminBookingsList() {
                 <TableCell colSpan={6} className="text-center text-muted-foreground py-16">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <CalendarIcon className="h-10 w-10 text-muted-foreground/30" />
-                    <span className="font-semibold text-foreground">No bookings matching filters</span>
+                    <span className="font-semibold text-foreground">
+                      No bookings matching filters
+                    </span>
                     <span className="text-xs">Adjust your search parameter or filters above.</span>
                   </div>
                 </TableCell>
@@ -302,8 +354,8 @@ function AdminBookingsList() {
                 const bookingDate = new Date(session?.start_time || booking.created_at);
 
                 return (
-                  <TableRow 
-                    key={booking.id} 
+                  <TableRow
+                    key={booking.id}
                     className="border-border/30 hover:bg-muted/30 cursor-pointer group transition-all duration-200 border-l-2 border-l-transparent hover:border-l-accent"
                     onClick={() => openModal(booking)}
                   >
@@ -336,7 +388,10 @@ function AdminBookingsList() {
                           {sessionType?.title || "Custom Workout"}
                         </span>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-[9px] uppercase tracking-wider font-bold border-border/50">
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] uppercase tracking-wider font-bold border-border/50"
+                          >
                             {sessionType?.focus || "Strength"}
                           </Badge>
                           <span className="text-[10px] text-muted-foreground truncate">
@@ -361,8 +416,12 @@ function AdminBookingsList() {
                     {/* Payment Cell */}
                     <TableCell className="py-3.5">
                       <div className="flex items-center gap-2">
-                        <CreditCard className={`h-4 w-4 ${booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500/70"}`} />
-                        <span className={`text-xs font-semibold ${booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500"}`}>
+                        <CreditCard
+                          className={`h-4 w-4 ${booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500/70"}`}
+                        />
+                        <span
+                          className={`text-xs font-semibold ${booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500"}`}
+                        >
                           {booking.payment_status === "paid" ? "Paid" : "Pending"}
                         </span>
                       </div>
@@ -376,28 +435,33 @@ function AdminBookingsList() {
                           booking.status === "confirmed"
                             ? "bg-blue-500/5 border-blue-500/20 text-blue-400"
                             : booking.status === "attended"
-                            ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
-                            : "bg-rose-500/5 border-rose-500/20 text-rose-400"
+                              ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
+                              : "bg-rose-500/5 border-rose-500/20 text-rose-400"
                         }`}
                       >
-                        <span className={`h-1.5 w-1.5 rounded-full ${
-                          booking.status === "confirmed"
-                            ? "bg-blue-500 animate-pulse"
-                            : booking.status === "attended"
-                            ? "bg-emerald-500"
-                            : "bg-rose-500"
-                        }`} />
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            booking.status === "confirmed"
+                              ? "bg-blue-500 animate-pulse"
+                              : booking.status === "attended"
+                                ? "bg-emerald-500"
+                                : "bg-rose-500"
+                          }`}
+                        />
                         {booking.status}
                       </Badge>
                     </TableCell>
 
                     {/* Actions Cell */}
                     <TableCell className="py-3.5 text-right pr-6">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-accent rounded-lg"
-                        onClick={(e) => { e.stopPropagation(); openModal(booking); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal(booking);
+                        }}
                       >
                         <Eye className="h-4.5 w-4.5" />
                       </Button>
@@ -411,10 +475,10 @@ function AdminBookingsList() {
       </div>
 
       {/* Booking Details Modal */}
-      <BookingDetailsModal 
-        booking={selectedBooking} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <BookingDetailsModal
+        booking={selectedBooking}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
