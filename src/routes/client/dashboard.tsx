@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase-client";
+import { CalendlyModal } from "@/components/site/CalendlyModal";
+import { useState } from "react";
 import {
   Calendar,
   User,
@@ -26,6 +28,7 @@ export const Route = createFileRoute("/client/dashboard")({
 
 function ClientDashboard() {
   const { user, profile, loading: authLoading } = useAuth();
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false);
 
   // Query: Fetch client bookings
   const { data: bookings, isLoading: bookingsLoading } = useQuery({
@@ -146,13 +149,19 @@ function ClientDashboard() {
               Track your training progress, view upcoming sessions, and review your payment logs.
               Let's make every session count.
             </p>
-            <div className="mt-5">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
                 to="/client/book"
                 className="inline-flex h-9 items-center justify-center rounded-md bg-accent px-5 text-xs font-semibold uppercase tracking-wider text-accent-foreground transition-opacity hover:opacity-90 shadow-md"
               >
                 Book a Session
               </Link>
+              <button
+                onClick={() => setIsCallModalOpen(true)}
+                className="inline-flex h-9 items-center gap-1.5 justify-center rounded-md border border-border bg-background/50 px-5 text-xs font-semibold uppercase tracking-wider text-foreground hover:border-accent hover:text-accent transition-all cursor-pointer"
+              >
+                Book a Call
+              </button>
             </div>
           </div>
 
@@ -514,6 +523,7 @@ function ClientDashboard() {
           </div>
         )}
       </div>
+      <CalendlyModal isOpen={isCallModalOpen} onOpenChange={setIsCallModalOpen} />
     </div>
   );
 }

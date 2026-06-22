@@ -16,6 +16,7 @@ import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ClientRouteImport } from './routes/client'
+import { Route as BookCallRouteImport } from './routes/book-call'
 import { Route as BlockedRouteImport } from './routes/blocked'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -71,6 +72,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ClientRoute = ClientRouteImport.update({
   id: '/client',
   path: '/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookCallRoute = BookCallRouteImport.update({
+  id: '/book-call',
+  path: '/book-call',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlockedRoute = BlockedRouteImport.update({
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/blocked': typeof BlockedRoute
+  '/book-call': typeof BookCallRoute
   '/client': typeof ClientRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/blocked': typeof BlockedRoute
+  '/book-call': typeof BookCallRoute
   '/client': typeof ClientRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/blocked': typeof BlockedRoute
+  '/book-call': typeof BookCallRoute
   '/client': typeof ClientRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/blocked'
+    | '/book-call'
     | '/client'
     | '/dashboard'
     | '/login'
@@ -307,6 +317,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/blocked'
+    | '/book-call'
     | '/client'
     | '/dashboard'
     | '/login'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/blocked'
+    | '/book-call'
     | '/client'
     | '/dashboard'
     | '/login'
@@ -368,6 +380,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   BlockedRoute: typeof BlockedRoute
+  BookCallRoute: typeof BookCallRoute
   ClientRoute: typeof ClientRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
@@ -427,6 +440,13 @@ declare module '@tanstack/react-router' {
       path: '/client'
       fullPath: '/client'
       preLoaderRoute: typeof ClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book-call': {
+      id: '/book-call'
+      path: '/book-call'
+      fullPath: '/book-call'
+      preLoaderRoute: typeof BookCallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blocked': {
@@ -634,6 +654,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   BlockedRoute: BlockedRoute,
+  BookCallRoute: BookCallRoute,
   ClientRoute: ClientRouteWithChildren,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,

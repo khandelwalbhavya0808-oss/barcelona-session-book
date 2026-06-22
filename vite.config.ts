@@ -13,4 +13,18 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: true,
+  vite: {
+    server: {
+      watch: {
+        ignored: [
+          "**/.output/**",
+          "**/.tanstack/**",
+          "**/.vercel/**",
+          "**/.wrangler/**",
+          "**/dist/**",
+          "**/node_modules/**",
+        ],
+      },
+    },
+  },
 });

@@ -84,3 +84,14 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Ensure Calendly embed iframe and wrapper containers are fully transparent to show our dark background */
+.calendly-inline-widget,
+.calendly-inline-widget iframe,
+[data-testid="calendly-inline-container"],
+[data-testid="calendly-inline-container"] iframe {
+  background-color: transparent !important;
+  background: transparent !important;
+  color-scheme: dark !important;
+}
+

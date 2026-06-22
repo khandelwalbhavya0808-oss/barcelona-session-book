@@ -1,4 +1,10 @@
-export function BookingCTA() {
+import { Phone, CalendarDays } from "lucide-react";
+
+interface BookingCTAProps {
+  onOpenModal?: () => void;
+}
+
+export function BookingCTA({ onOpenModal }: BookingCTAProps) {
   return (
     <section id="book" className="border-b border-border bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-28 sm:px-6 md:py-36">
@@ -10,23 +16,26 @@ export function BookingCTA() {
           <h2 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
             Reserve a session.
             <br />
-            <span className="text-accent">Or reschedule an existing one.</span>
+            <span className="text-accent">Or schedule an introductory call.</span>
           </h2>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-            One session to try it. Or a weekly block. Studio or outdoor — your call.
+            Schedule a free 1:1 consultation call to plan your goals, or select a training slot from our weekly schedule.
           </p>
           <div className="mt-10 flex flex-wrap items-center gap-3">
+            <button
+              onClick={onOpenModal}
+              className="inline-flex h-12 items-center gap-2 rounded-sm bg-accent px-7 text-[13px] font-semibold uppercase tracking-[0.14em] text-accent-foreground transition-opacity hover:opacity-90 cursor-pointer"
+            >
+              <Phone className="h-4 w-4 shrink-0" />
+              Book a Consultation Call
+            </button>
+            
             <a
               href="#schedule"
-              className="inline-flex h-12 items-center rounded-sm bg-accent px-7 text-[13px] font-semibold uppercase tracking-[0.14em] text-accent-foreground transition-opacity hover:opacity-90"
+              className="inline-flex h-12 items-center gap-2 rounded-sm border border-border px-7 text-[13px] font-semibold uppercase tracking-[0.14em] text-foreground transition-colors hover:border-accent hover:text-accent cursor-pointer"
             >
-              Book a Session
-            </a>
-            <a
-              href="#book"
-              className="inline-flex h-12 items-center rounded-sm border border-border px-7 text-[13px] font-semibold uppercase tracking-[0.14em] text-foreground transition-colors hover:border-accent hover:text-accent"
-            >
-              Reschedule
+              <CalendarDays className="h-4 w-4 shrink-0" />
+              View Weekly Schedule
             </a>
           </div>
 
